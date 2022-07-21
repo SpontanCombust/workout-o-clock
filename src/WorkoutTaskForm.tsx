@@ -1,11 +1,16 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-import ModalDropdown from 'react-native-modal-dropdown';
+import DropDownPicker from "react-native-dropdown-picker";
 
 export default function WorkoutTaskForm(props: {
     onRequestClose: () => void;
 }) {
-    const [displayTime, setDisplayTime] = useState(true);
+    const [timerDropdownOpen, setTimerDropdownOpen] = useState(false);
+    const [timerDropdownValue, setTimerDropdownValue] = useState(0);
+    const [timerDropdownItems, setTimerDropdownItems] = useState([
+        {value: 0, label: 'Countdown'},
+        {value: 1, label: 'Counter'},
+    ]);
 
     return (
         <View style={styles.content}>
@@ -16,12 +21,28 @@ export default function WorkoutTaskForm(props: {
             </View>
 
             <Text style={styles.header}>New workout task</Text>
-            <TextInput style={styles.textInput} placeholder="Title"/>
-            <ModalDropdown style={styles.dropdown} dropdownStyle={styles.dropdownModal} 
-                options={["Countdown", "Counter"]}
-                defaultValue="Select timer type..."
-                onSelect={(index: string) => setDisplayTime(index === "0")}
-            />
+            <TextInput style={styles.titleTextInput} placeholder="Title"/>
+            <View style={styles.timerSettingsView}>
+                <View style={{width: '40%'}}>
+                    <DropDownPicker
+                        open={timerDropdownOpen}
+                        setOpen={setTimerDropdownOpen}
+                        items={timerDropdownItems}
+                        setItems={setTimerDropdownItems}
+                        value={timerDropdownValue}
+                        setValue={setTimerDropdownValue}
+
+                        style={styles.timerDropdown}
+                    />
+                </View>
+
+                {timerDropdownValue == 0 &&
+                <View style={{flexDirection: "row", marginLeft: 30}}>
+                    <TextInput style={[styles.timeTextInput, styles.timeTextInputContent]} keyboardType="numeric" defaultValue="00" maxLength={2}/>
+                    <Text style={styles.timeTextInputContent}> : </Text>
+                    <TextInput style={[styles.timeTextInput, styles.timeTextInputContent]} keyboardType="numeric" defaultValue="00" maxLength={2}/>
+                </View>}
+            </View>
             
             <View style={styles.bottomButtonsView}>
                 <Button title="Cancel" onPress={props.onRequestClose}/>
@@ -76,33 +97,39 @@ const styles = StyleSheet.create({
 
         textAlign: "center",
     },
-    textInput: {
+    titleTextInput: {
         paddingLeft: 10,
 
-        height: 40,
+        height: 50,
         borderColor: "gray",
         borderWidth: 1,
         borderRadius: 5,
     },
-    dropdown: {
+    timerSettingsView: {
+        flexDirection: "row",
         marginTop: 15,
-        paddingLeft: 10,
-        paddingTop: 5,
-
+        height: 60,    
+    },
+    timerDropdown: {
         height: 40,
-        width: '40%',
         borderColor: "gray",
         borderWidth: 1,
         borderRadius: 5,
     },
-    dropdownModal: {
-        borderColor: "gray",
+    timeTextInput: {
         borderWidth: 1,
+        borderRadius: 5,
+        borderColor: "gray",
+        width: 60,
+        height: 60,
+    },
+    timeTextInputContent: {
+        fontSize: 40,
+        textAlign: "center",
+        fontWeight: "200",
     },
     bottomButtonsView: {
         flexDirection: "row",
-        // alignContent: "center",
-        // alignItems: "center",
         justifyContent: "space-evenly",
 
         width: "100%",
