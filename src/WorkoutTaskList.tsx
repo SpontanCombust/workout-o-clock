@@ -1,9 +1,22 @@
 import React, { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import WorkoutTaskForm from "./WorkoutTaskForm";
+import DraggableFlatList from "react-native-draggable-flatlist";
 
-export default function WorkoutList() {
+import WorkoutTask from "./WorkoutTask";
+import WorkoutTaskForm from "./WorkoutTaskForm";
+import WorkoutTaskListItem from "./WorkoutTaskListItem";
+
+
+//TODO add new tasks from form
+const initData: WorkoutTask[] = [
+    {id: 0, title: "Squat", hasCountdown: true, countdownSeconds: 30},
+    {id: 1, title: "Bench Press", hasCountdown: false},
+    {id: 2, title: "Deadlift", hasCountdown: true, countdownSeconds: 60},
+];
+
+export default function WorkoutTaskList() {
     const [formVisible, setFormVisible] = useState(false);
+    const [data, setData] = useState(initData);
 
     return (
         <View style={styles.content}>
@@ -16,6 +29,15 @@ export default function WorkoutList() {
                 >
                     <WorkoutTaskForm onRequestClose={() => setFormVisible(false)}/>
                 </Modal>
+
+                <DraggableFlatList<WorkoutTask>
+                    data={data}
+                    onDragEnd={({data}) => setData(data)}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={(params) =>
+                        <WorkoutTaskListItem task={params.item} onLongPress={params.drag} disabled={params.isActive} />
+                    }
+                />
             </View>
             <View style={styles.addButtonBottomView}>
                 {!formVisible &&
@@ -35,13 +57,15 @@ const styles = StyleSheet.create({
     },
     listView: {
         flex: 9,
-        alignItems: "center",
+        alignItems: "stretch",
+        marginTop: 50,
     },
     addButtonBottomView: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center"
     },
+    //FIXME button changes shape as the listView changes height/vertargin
     addButton: {
         flexDirection: "row",
         justifyContent: "center",

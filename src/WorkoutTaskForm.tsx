@@ -1,11 +1,14 @@
 import React, { useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+
 import DropDownPicker from "react-native-dropdown-picker";
+
 
 export default function WorkoutTaskForm(props: {
     onRequestClose: () => void;
 }) {
     const [timerDropdownOpen, setTimerDropdownOpen] = useState(false);
+    //TODO validate input
     const [timerDropdownValue, setTimerDropdownValue] = useState(0);
     const [timerDropdownItems, setTimerDropdownItems] = useState([
         {value: 0, label: 'Countdown'},
