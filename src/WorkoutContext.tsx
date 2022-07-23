@@ -1,14 +1,22 @@
-import { Children, createContext, useReducer } from "react";
+import { createContext, useReducer } from "react";
 
-import WorkoutTask from "./WorkoutTask";
+import { WorkoutTask } from "./WorkoutTask";
 
 
-interface WorkoutContextProps {
+export interface WorkoutContextProps {
     tasks: WorkoutTask[];
+    addWorkout: (task: WorkoutTask) => void;
+    removeWorkout: (id: number) => void;
+
+    idCounter: number;
 }
 
 const initialState: WorkoutContextProps = {
     tasks: [],
+    addWorkout: () => {},
+    removeWorkout: () => {},
+
+    idCounter: 0,
 };
 
 export const WorkoutContext = createContext(initialState);
@@ -59,10 +67,11 @@ export function WorkoutContextProvider(props: {children: any}) {
     }
 
 
-    const value = {
+    const value: WorkoutContextProps = {
         tasks: state.tasks,
-        addWorkout,
-        removeWorkout
+        addWorkout: addWorkout,
+        removeWorkout: removeWorkout,
+        idCounter: state.idCounter,
     };
 
     return <WorkoutContext.Provider value={value}>{props.children}</WorkoutContext.Provider>;
