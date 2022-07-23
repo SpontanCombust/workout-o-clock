@@ -17,17 +17,16 @@ export default function WorkoutTaskForm(props: {
     ]);
 
     const [workoutTitle, setWorkoutTitle] = useState("");
-    const [workoutTimeMinutes, setWorkoutTimeMinutes] = useState(0);
-    const [workoutTimeSeconds, setWorkoutTimeSeconds] = useState(0);
-    const [workoutReps, setWorkoutReps] = useState(0);
+    const [workoutTimeMinutes, setWorkoutTimeMinutes] = useState("");
+    const [workoutTimeSeconds, setWorkoutTimeSeconds] = useState("");
+    const [workoutReps, setWorkoutReps] = useState("");
 
     let context = useContext(WorkoutContext);
 
     
-    //DISCUSS make a seperate component
-    //FIXME doesn't work properly
-    function setNumberGuard(arg: string, setter: (_: number) => void) {
-        setter(parseInt(arg.replace(/[^0-9]/g, '')));
+    //DISCUSS make a seperate component for number text input
+    function filterNonDigits(s: string): string {
+        return s.replace(/\D+/g, '');
     }
 
     function CompletionCondInput(): JSX.Element {
@@ -37,7 +36,8 @@ export default function WorkoutTaskForm(props: {
                 style={[styles.timeTextInput, styles.completionCondInputContent]} 
                 keyboardType="numeric" 
                 placeholder={"mm"}
-                onChangeText={(arg: string) => setNumberGuard(arg, setWorkoutTimeMinutes)}
+                value={workoutTimeMinutes}
+                onChangeText={(s: string) => setWorkoutTimeMinutes(filterNonDigits(s))}
                 maxLength={2}
             />
             <Text style={styles.completionCondInputContent}> : </Text>
@@ -45,7 +45,8 @@ export default function WorkoutTaskForm(props: {
                 style={[styles.timeTextInput, styles.completionCondInputContent]} 
                 keyboardType="numeric" 
                 placeholder={"ss"}
-                onChangeText={(arg: string) => setNumberGuard(arg, setWorkoutTimeSeconds)}
+                value={workoutTimeSeconds}
+                onChangeText={(s: string) => setWorkoutTimeSeconds(filterNonDigits(s))}
                 maxLength={2}
             />
             </>
@@ -55,10 +56,16 @@ export default function WorkoutTaskForm(props: {
                 style={[styles.repsTextInput, styles.completionCondInputContent]} 
                 keyboardType="numeric" 
                 placeholder="Reps"
-                onChangeText={(arg: string) => setNumberGuard(arg, setWorkoutReps)}
+                value={workoutReps}
+                onChangeText={(s: string) => setWorkoutReps(filterNonDigits(s))}
                 maxLength={4}
             />)
         }
+    }
+
+    function parseIntSafe(s: string): number {
+        const n = parseInt(s);
+        return isNaN(n) ? 0 : n;
     }
 
     function addNewWorkoutTask(context: WorkoutContextProps) {
@@ -66,13 +73,13 @@ export default function WorkoutTaskForm(props: {
         if(completionCondDropdownValue == CompletionConditionType.TIME) {
             completionCondition = {
                 type: CompletionConditionType.TIME,
-                minutes: workoutTimeMinutes,
-                seconds: workoutTimeSeconds,
+                minutes: parseIntSafe(workoutTimeMinutes),
+                seconds: parseIntSafe(workoutTimeSeconds),
             };
         } else {
             completionCondition = {
                 type: CompletionConditionType.REPS,
-                reps: workoutReps,
+                reps: parseIntSafe(workoutReps),
             }
         }
 
@@ -111,7 +118,7 @@ export default function WorkoutTaskForm(props: {
                 </View>
 
                 <View style={{flexDirection: "row", marginLeft: 30}}>
-                    <CompletionCondInput/>
+                    {CompletionCondInput()}
                 </View>
             </View>
             
@@ -195,7 +202,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
         borderColor: "gray",
-        width: 60,
+        width: 80,
         height: 60,
     },
     repsTextInput: {

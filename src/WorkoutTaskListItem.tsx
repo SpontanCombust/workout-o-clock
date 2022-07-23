@@ -12,7 +12,7 @@ export default function WorkoutTaskListItem(props: {
     disabled: boolean;
 }) {
     
-    function CompletionConditionView(props: {task: WorkoutTask}) {
+    function CompletionConditionView(task: WorkoutTask) : JSX.Element {
         if(props.task.completionCondition.type == CompletionConditionType.TIME) {
             return <View style={{flexDirection: "row"}}>
                 <Text style={styles.completionConditionText}>
@@ -42,7 +42,7 @@ export default function WorkoutTaskListItem(props: {
             ]}
         >
             <Text style={styles.titleText}>{props.task.title}</Text>
-            <CompletionConditionView task={props.task}/>
+            {CompletionConditionView(props.task)}
         </TouchableOpacity>
     </ScaleDecorator>
     )
