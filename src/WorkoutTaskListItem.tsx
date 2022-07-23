@@ -3,7 +3,7 @@ import { StyleSheet, Text, View } from "react-native";
 import { ScaleDecorator } from "react-native-draggable-flatlist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-import WorkoutTask from "./WorkoutTask";
+import { CompletionConditionType, WorkoutTask } from "./WorkoutTask";
 
 
 export default function WorkoutTaskListItem(props: {
@@ -11,6 +11,25 @@ export default function WorkoutTaskListItem(props: {
     onLongPress: () => void;
     disabled: boolean;
 }) {
+    
+    function CompletionConditionView(props: {task: WorkoutTask}) {
+        if(props.task.completionCondition.type == CompletionConditionType.TIME) {
+            return <View style={{flexDirection: "row"}}>
+                <Text style={styles.completionConditionText}>
+                    {props.task.completionCondition.minutes
+                    + " : " + 
+                    props.task.completionCondition.seconds}
+                </Text>
+            </View>
+        } else {
+            return <View style={{flexDirection: "row"}}>
+                <Text style={styles.completionConditionText}>
+                    {props.task.completionCondition.reps + " reps"}
+                </Text>
+            </View>
+        }
+    }
+
     return (
     <ScaleDecorator>
         <TouchableOpacity
@@ -23,12 +42,7 @@ export default function WorkoutTaskListItem(props: {
             ]}
         >
             <Text style={styles.titleText}>{props.task.title}</Text>
-            {props.task.hasCountdown && 
-            <View style={{flexDirection: "row"}}>
-                <Text style={styles.timeText}>{props.task.countdownMinutes !== undefined ? props.task.countdownMinutes : "00"}</Text>
-                <Text style={styles.timeText}> : </Text>
-                <Text style={styles.timeText}>{props.task.countdownSeconds !== undefined ? props.task.countdownSeconds : "00" }</Text>
-            </View>}
+            <CompletionConditionView task={props.task}/>
         </TouchableOpacity>
     </ScaleDecorator>
     )
@@ -53,7 +67,7 @@ const styles = StyleSheet.create({
         fontWeight: "bold",
         color: "black"
     },
-    timeText: {
+    completionConditionText: {
         fontSize: 30,
         color: "black",
         fontWeight: "200"

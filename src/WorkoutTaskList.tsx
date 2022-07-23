@@ -2,16 +2,27 @@ import React, { useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
-import WorkoutTask from "./WorkoutTask";
+import { CompletionConditionType, WorkoutTask } from "./WorkoutTask";
 import WorkoutTaskForm from "./WorkoutTaskForm";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
 
 
 //TODO add new tasks from form
 const initData: WorkoutTask[] = [
-    {id: 0, title: "Squat", hasCountdown: true, countdownSeconds: 30},
-    {id: 1, title: "Bench Press", hasCountdown: false},
-    {id: 2, title: "Deadlift", hasCountdown: true, countdownSeconds: 60},
+    {id: 0, title: "Squat", completionCondition: {
+        type: CompletionConditionType.TIME,
+        minutes: 0,
+        seconds: 30,
+    }},
+    {id: 1, title: "Bench Press", completionCondition: {
+        type: CompletionConditionType.REPS,
+        reps: 5,
+    }},
+    {id: 2, title: "Rest", completionCondition: {
+        type: CompletionConditionType.TIME,
+        minutes: 1,
+        seconds: 30
+    }},
 ];
 
 export default function WorkoutTaskList() {

@@ -1,19 +1,89 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
-
 import DropDownPicker from "react-native-dropdown-picker";
+
+import { WorkoutContext, WorkoutContextProps } from "./WorkoutContext";
+import { CompletionCondition, CompletionConditionType, WorkoutTask } from "./WorkoutTask";
 
 
 export default function WorkoutTaskForm(props: {
     onRequestClose: () => void;
 }) {
-    const [timerDropdownOpen, setTimerDropdownOpen] = useState(false);
-    //TODO validate input
-    const [timerDropdownValue, setTimerDropdownValue] = useState(0);
-    const [timerDropdownItems, setTimerDropdownItems] = useState([
-        {value: 0, label: 'Countdown'},
-        {value: 1, label: 'Counter'},
+    const [completionCondDropdown, setCompletionCondDropdownOpen] = useState(false);
+    const [completionCondDropdownValue, setCompletionCondDropdownValue] = useState(CompletionConditionType.TIME);
+    const [completionCondDropdownItems, setCompletionCondDropdownItems] = useState([
+        {value: CompletionConditionType.TIME, label: 'Time'},
+        {value: CompletionConditionType.REPS, label: 'Reps'},
     ]);
+
+    const [workoutTitle, setWorkoutTitle] = useState("");
+    const [workoutTimeMinutes, setWorkoutTimeMinutes] = useState(0);
+    const [workoutTimeSeconds, setWorkoutTimeSeconds] = useState(0);
+    const [workoutReps, setWorkoutReps] = useState(0);
+
+    let context = useContext(WorkoutContext);
+
+    
+    //DISCUSS make a seperate component
+    //FIXME doesn't work properly
+    function setNumberGuard(arg: string, setter: (_: number) => void) {
+        setter(parseInt(arg.replace(/[^0-9]/g, '')));
+    }
+
+    function CompletionCondInput(): JSX.Element {
+        if(completionCondDropdownValue == CompletionConditionType.TIME) {
+            return <>
+            <TextInput 
+                style={[styles.timeTextInput, styles.completionCondInputContent]} 
+                keyboardType="numeric" 
+                placeholder={"mm"}
+                onChangeText={(arg: string) => setNumberGuard(arg, setWorkoutTimeMinutes)}
+                maxLength={2}
+            />
+            <Text style={styles.completionCondInputContent}> : </Text>
+            <TextInput 
+                style={[styles.timeTextInput, styles.completionCondInputContent]} 
+                keyboardType="numeric" 
+                placeholder={"ss"}
+                onChangeText={(arg: string) => setNumberGuard(arg, setWorkoutTimeSeconds)}
+                maxLength={2}
+            />
+            </>
+        } else {
+            return (
+            <TextInput 
+                style={[styles.repsTextInput, styles.completionCondInputContent]} 
+                keyboardType="numeric" 
+                placeholder="Reps"
+                onChangeText={(arg: string) => setNumberGuard(arg, setWorkoutReps)}
+                maxLength={4}
+            />)
+        }
+    }
+
+    function addNewWorkoutTask(context: WorkoutContextProps) {
+        let completionCondition: CompletionCondition;
+        if(completionCondDropdownValue == CompletionConditionType.TIME) {
+            completionCondition = {
+                type: CompletionConditionType.TIME,
+                minutes: workoutTimeMinutes,
+                seconds: workoutTimeSeconds,
+            };
+        } else {
+            completionCondition = {
+                type: CompletionConditionType.REPS,
+                reps: workoutReps,
+            }
+        }
+
+        context.addWorkout(new WorkoutTask(
+            workoutTitle,
+            completionCondition,
+        ));
+    }
+
+
+
 
     return (
         <View style={styles.content}>
@@ -24,32 +94,33 @@ export default function WorkoutTaskForm(props: {
             </View>
 
             <Text style={styles.header}>New workout task</Text>
-            <TextInput style={styles.titleTextInput} placeholder="Title"/>
-            <View style={styles.timerSettingsView}>
-                <View style={{width: '40%'}}>
+            <TextInput onChangeText={setWorkoutTitle} style={styles.titleTextInput} placeholder="Title"/>
+            <View style={styles.completionCondView}>
+                <View style={{width: '40%', flexDirection: "column"}}>
+                    <Text>Completion condition</Text>
                     <DropDownPicker
-                        open={timerDropdownOpen}
-                        setOpen={setTimerDropdownOpen}
-                        items={timerDropdownItems}
-                        setItems={setTimerDropdownItems}
-                        value={timerDropdownValue}
-                        setValue={setTimerDropdownValue}
+                        open={completionCondDropdown}
+                        setOpen={setCompletionCondDropdownOpen}
+                        items={completionCondDropdownItems}
+                        setItems={setCompletionCondDropdownItems}
+                        value={completionCondDropdownValue}
+                        setValue={setCompletionCondDropdownValue}
 
-                        style={styles.timerDropdown}
+                        style={styles.completionConditionDropdown}
                     />
                 </View>
 
-                {timerDropdownValue == 0 &&
                 <View style={{flexDirection: "row", marginLeft: 30}}>
-                    <TextInput style={[styles.timeTextInput, styles.timeTextInputContent]} keyboardType="numeric" defaultValue="00" maxLength={2}/>
-                    <Text style={styles.timeTextInputContent}> : </Text>
-                    <TextInput style={[styles.timeTextInput, styles.timeTextInputContent]} keyboardType="numeric" defaultValue="00" maxLength={2}/>
-                </View>}
+                    <CompletionCondInput/>
+                </View>
             </View>
             
             <View style={styles.bottomButtonsView}>
                 <Button title="Cancel" onPress={props.onRequestClose}/>
-                <Button title="Save" onPress={props.onRequestClose}/>
+                <Button title="Save" onPress={() => { 
+                    addNewWorkoutTask(context);
+                    props.onRequestClose();
+                }}/>
             </View>
         </View>
     )
@@ -108,12 +179,13 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
     },
-    timerSettingsView: {
+    //TODO fix children alignment
+    completionCondView: {
         flexDirection: "row",
         marginTop: 15,
         height: 60,    
     },
-    timerDropdown: {
+    completionConditionDropdown: {
         height: 40,
         borderColor: "gray",
         borderWidth: 1,
@@ -126,7 +198,14 @@ const styles = StyleSheet.create({
         width: 60,
         height: 60,
     },
-    timeTextInputContent: {
+    repsTextInput: {
+        borderWidth: 1,
+        borderRadius: 5,
+        borderColor: "gray",
+        width: 100,
+        height: 60,
+    },
+    completionCondInputContent: {
         fontSize: 40,
         textAlign: "center",
         fontWeight: "200",
