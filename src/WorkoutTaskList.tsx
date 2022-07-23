@@ -1,33 +1,16 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
+import { WorkoutContext } from "./WorkoutContext";
 
 import { CompletionConditionType, WorkoutTask } from "./WorkoutTask";
 import WorkoutTaskForm from "./WorkoutTaskForm";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
 
 
-//TODO add new tasks from form
-const initData: WorkoutTask[] = [
-    {id: 0, title: "Squat", completionCondition: {
-        type: CompletionConditionType.TIME,
-        minutes: 0,
-        seconds: 30,
-    }},
-    {id: 1, title: "Bench Press", completionCondition: {
-        type: CompletionConditionType.REPS,
-        reps: 5,
-    }},
-    {id: 2, title: "Rest", completionCondition: {
-        type: CompletionConditionType.TIME,
-        minutes: 1,
-        seconds: 30
-    }},
-];
-
 export default function WorkoutTaskList() {
     const [formVisible, setFormVisible] = useState(false);
-    const [data, setData] = useState(initData);
+    const context = useContext(WorkoutContext);
 
     return (
         <View style={styles.content}>
@@ -42,8 +25,8 @@ export default function WorkoutTaskList() {
                 </Modal>
 
                 <DraggableFlatList<WorkoutTask>
-                    data={data}
-                    onDragEnd={({data}) => setData(data)}
+                    data={context.tasks}
+                    onDragEnd={({data}) => context.setTasks(data)}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={(params) =>
                         <WorkoutTaskListItem task={params.item} onLongPress={params.drag} disabled={params.isActive} />

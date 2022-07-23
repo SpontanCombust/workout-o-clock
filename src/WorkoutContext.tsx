@@ -4,7 +4,9 @@ import { WorkoutTask } from "./WorkoutTask";
 
 
 export interface WorkoutContextProps {
+    //TODO save to persistent storage
     tasks: WorkoutTask[];
+    setTasks: (tasks: WorkoutTask[]) => void;
     addWorkout: (task: WorkoutTask) => void;
     removeWorkout: (id: number) => void;
 
@@ -13,6 +15,7 @@ export interface WorkoutContextProps {
 
 const initialState: WorkoutContextProps = {
     tasks: [],
+    setTasks: () => {},
     addWorkout: () => {},
     removeWorkout: () => {},
 
@@ -22,6 +25,11 @@ const initialState: WorkoutContextProps = {
 export const WorkoutContext = createContext(initialState);
 
 
+
+interface WorkoutReducerActionSetTasks {
+    type: "SET_TASKS";
+    tasks: WorkoutTask[];
+}
 
 interface WorkoutReducerActionAddTask {
     type: "ADD_TASK";
@@ -33,7 +41,10 @@ interface WorkoutReducerActionRemoveTask {
     id: number;
 }
 
-type WorkoutReducerAction = WorkoutReducerActionAddTask | WorkoutReducerActionRemoveTask;
+type WorkoutReducerAction = 
+    WorkoutReducerActionSetTasks    |
+    WorkoutReducerActionAddTask     | 
+    WorkoutReducerActionRemoveTask;
 
 function WorkoutReducer(state: WorkoutContextProps, action: WorkoutReducerAction): WorkoutContextProps {
     switch (action.type) {
@@ -47,6 +58,11 @@ function WorkoutReducer(state: WorkoutContextProps, action: WorkoutReducerAction
                 ...state, 
                 tasks: state.tasks.filter(task => task.id !== action.id)
             };
+        case "SET_TASKS":
+            return {
+                ...state,
+                tasks: action.tasks
+            }
         default:
             return state;
     }
@@ -58,6 +74,9 @@ function WorkoutReducer(state: WorkoutContextProps, action: WorkoutReducerAction
 export function WorkoutContextProvider(props: {children: any}) {
     const [state, dispatch] = useReducer(WorkoutReducer, initialState);
 
+    function setTasks(tasks: WorkoutTask[]) {
+        dispatch({type: "SET_TASKS", tasks: tasks});
+    }
     function addWorkout(task: WorkoutTask) {
         dispatch({type: "ADD_TASK", task: task});
     }
@@ -68,10 +87,10 @@ export function WorkoutContextProvider(props: {children: any}) {
 
 
     const value: WorkoutContextProps = {
-        tasks: state.tasks,
+        ...state,
+        setTasks: setTasks,
         addWorkout: addWorkout,
         removeWorkout: removeWorkout,
-        idCounter: state.idCounter,
     };
 
     return <WorkoutContext.Provider value={value}>{props.children}</WorkoutContext.Provider>;

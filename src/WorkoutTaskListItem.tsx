@@ -12,13 +12,13 @@ export default function WorkoutTaskListItem(props: {
     disabled: boolean;
 }) {
     
-    function CompletionConditionView(task: WorkoutTask) : JSX.Element {
+    function CompletionConditionView() : JSX.Element {
         if(props.task.completionCondition.type == CompletionConditionType.TIME) {
             return <View style={{flexDirection: "row"}}>
                 <Text style={styles.completionConditionText}>
-                    {props.task.completionCondition.minutes
+                    {props.task.completionCondition.minutes.toString().padStart(2, "0")
                     + " : " + 
-                    props.task.completionCondition.seconds}
+                    props.task.completionCondition.seconds.toString().padStart(2, "0")}
                 </Text>
             </View>
         } else {
@@ -42,7 +42,7 @@ export default function WorkoutTaskListItem(props: {
             ]}
         >
             <Text style={styles.titleText}>{props.task.title}</Text>
-            {CompletionConditionView(props.task)}
+            {CompletionConditionView()}
         </TouchableOpacity>
     </ScaleDecorator>
     )
