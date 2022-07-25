@@ -1,5 +1,6 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
+import { fromHsv, toHsv } from "react-native-color-picker";
 import { ScaleDecorator } from "react-native-draggable-flatlist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
@@ -11,6 +12,8 @@ export default function WorkoutTaskListItem(props: {
     onLongPress: () => void;
     disabled: boolean;
 }) {
+    let movingCardColor = toHsv(props.task.cardColor);
+    movingCardColor.v -= 0.1;
     
     function CompletionConditionView() : JSX.Element {
         if(props.task.completionCondition.type == CompletionConditionType.TIME) {
@@ -38,7 +41,7 @@ export default function WorkoutTaskListItem(props: {
             disabled={props.disabled}
             style={[
                 styles.content,
-                props.disabled ? styles.contentDisabled : styles.contentEnabled,
+                props.disabled ? {backgroundColor: fromHsv(movingCardColor)} : {backgroundColor: props.task.cardColor},
             ]}
         >
             <Text style={styles.titleText}>{props.task.title}</Text>

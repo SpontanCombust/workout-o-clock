@@ -1,5 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Button, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Button, Modal, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { fromHsv, TriangleColorPicker } from "react-native-color-picker";
+import { HsvColor } from "react-native-color-picker/dist/typeHelpers";
 import DropDownPicker from "react-native-dropdown-picker";
 
 import { WorkoutContext, WorkoutContextProps } from "./WorkoutContext";
@@ -20,8 +22,10 @@ export default function WorkoutTaskForm(props: {
     const [workoutTimeMinutes, setWorkoutTimeMinutes] = useState("");
     const [workoutTimeSeconds, setWorkoutTimeSeconds] = useState("");
     const [workoutReps, setWorkoutReps] = useState("");
+    const [colorPickerVisible, setColorPickerVisible] = useState(false);
+    const [workoutCardColor, setWorkoutCardColor] = useState("springgreen");
 
-    let context = useContext(WorkoutContext);
+    const context = useContext(WorkoutContext);
 
     
     //DISCUSS make a seperate component for number text input
@@ -86,6 +90,7 @@ export default function WorkoutTaskForm(props: {
         context.addWorkout(new WorkoutTask(
             workoutTitle,
             completionCondition,
+            workoutCardColor
         ));
     }
 
@@ -101,7 +106,9 @@ export default function WorkoutTaskForm(props: {
             </View>
 
             <Text style={styles.header}>New workout task</Text>
+
             <TextInput onChangeText={setWorkoutTitle} style={styles.titleTextInput} placeholder="Title"/>
+
             <View style={styles.completionCondView}>
                 <View style={{width: '40%', flexDirection: "column"}}>
                     <Text>Completion condition</Text>
@@ -120,6 +127,30 @@ export default function WorkoutTaskForm(props: {
                 <View style={{flexDirection: "row", marginLeft: 30}}>
                     {CompletionCondInput()}
                 </View>
+            </View>
+
+            <Modal
+                animationType="fade"
+                transparent={true}
+                visible={colorPickerVisible}
+                onRequestClose={() => setColorPickerVisible(false)}
+            >
+                <View style={styles.colorPickerModalView}>
+                    <TriangleColorPicker
+                        oldColor={workoutCardColor}
+                        onColorSelected={(c: string) => {
+                            setWorkoutCardColor(c);
+                            setColorPickerVisible(false)
+                        }}
+                        style={{flex: 1}}
+                    />
+                </View>
+            </Modal>
+            <View style={{flexDirection: "row", marginTop: 50}}>
+                <TouchableWithoutFeedback onPress={() => setColorPickerVisible(true)}>
+                    <View style={[styles.colorPickerButton, {backgroundColor: workoutCardColor}]}></View>
+                </TouchableWithoutFeedback>
+                <Text>Select card color</Text>
             </View>
             
             <View style={styles.bottomButtonsView}>
@@ -216,6 +247,18 @@ const styles = StyleSheet.create({
         fontSize: 40,
         textAlign: "center",
         fontWeight: "200",
+    },
+    colorPickerButton: {
+        width: 30,
+        height: 30,
+        borderWidth: 1,
+        borderColor: "black",
+        marginRight: 10,
+    },
+    colorPickerModalView: {
+        flex: 1,
+        paddingVertical: 20,
+        backgroundColor: 'rgba(0, 0, 0, 0.9)',
     },
     bottomButtonsView: {
         flexDirection: "row",

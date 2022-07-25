@@ -22,11 +22,12 @@ export class WorkoutTask {
     id: number;
     title: string;
     completionCondition: CompletionCondition;
-    //TODO task background color
+    cardColor: string;
 
-    constructor(title: string, completionCondition: CompletionCondition) {
+    constructor(title: string, completionCondition: CompletionCondition, cardColor: string) {
         this.id = WorkoutTask.idCounter++;
         this.title = title;
         this.completionCondition = completionCondition;
+        this.cardColor = cardColor;
     }
 }
