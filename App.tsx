@@ -1,8 +1,8 @@
 import React from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { WorkoutContextProvider } from "./src/WorkoutContext";
 
-import WorkoutTaskList from "./src/WorkoutTaskList";
+import { WorkoutContextProvider } from "./src/context/WorkoutContext";
+import WorkoutTaskList from "./src/views/WorkoutTaskList";
 
 
 export default function App() {

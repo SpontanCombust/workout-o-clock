@@ -1,14 +1,14 @@
 import { createContext, useReducer } from "react";
 
-import { WorkoutTask } from "./WorkoutTask";
+import { WorkoutTask } from "../types/WorkoutTask";
 
 
 export interface WorkoutContextProps {
     //TODO save to persistent storage
     tasks: WorkoutTask[];
     setTasks: (tasks: WorkoutTask[]) => void;
-    addWorkout: (task: WorkoutTask) => void;
-    removeWorkout: (id: number) => void;
+    addTask: (task: WorkoutTask) => void;
+    removeTask: (id: number) => void;
 
     idCounter: number;
 }
@@ -16,8 +16,8 @@ export interface WorkoutContextProps {
 const initialState: WorkoutContextProps = {
     tasks: [],
     setTasks: () => {},
-    addWorkout: () => {},
-    removeWorkout: () => {},
+    addTask: () => {},
+    removeTask: () => {},
 
     idCounter: 0,
 };
@@ -89,8 +89,8 @@ export function WorkoutContextProvider(props: {children: any}) {
     const value: WorkoutContextProps = {
         ...state,
         setTasks: setTasks,
-        addWorkout: addWorkout,
-        removeWorkout: removeWorkout,
+        addTask: addWorkout,
+        removeTask: removeWorkout,
     };
 
     return <WorkoutContext.Provider value={value}>{props.children}</WorkoutContext.Provider>;

@@ -1,11 +1,10 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useState } from "react";
 import { Button, Modal, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
-import { fromHsv, TriangleColorPicker } from "react-native-color-picker";
-import { HsvColor } from "react-native-color-picker/dist/typeHelpers";
+import { TriangleColorPicker } from "react-native-color-picker";
 import DropDownPicker from "react-native-dropdown-picker";
 
-import { WorkoutContext, WorkoutContextProps } from "./WorkoutContext";
-import { CompletionCondition, CompletionConditionType, WorkoutTask } from "./WorkoutTask";
+import { WorkoutContext, WorkoutContextProps } from "../context/WorkoutContext";
+import { CompletionCondition, CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
 
 export default function WorkoutTaskForm(props: {
@@ -87,7 +86,7 @@ export default function WorkoutTaskForm(props: {
             }
         }
 
-        context.addWorkout(new WorkoutTask(
+        context.addTask(new WorkoutTask(
             workoutTitle,
             completionCondition,
             workoutCardColor

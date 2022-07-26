@@ -1,9 +1,9 @@
 import React, { useContext, useState } from "react";
 import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
-import { WorkoutContext } from "./WorkoutContext";
+import { WorkoutContext } from "../context/WorkoutContext";
 
-import { CompletionConditionType, WorkoutTask } from "./WorkoutTask";
+import { WorkoutTask } from "../types/WorkoutTask";
 import WorkoutTaskForm from "./WorkoutTaskForm";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
 

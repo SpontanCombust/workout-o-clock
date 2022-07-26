@@ -4,7 +4,7 @@ import { fromHsv, toHsv } from "react-native-color-picker";
 import { ScaleDecorator } from "react-native-draggable-flatlist";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
-import { CompletionConditionType, WorkoutTask } from "./WorkoutTask";
+import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
 
 export default function WorkoutTaskListItem(props: {
