@@ -1,7 +1,8 @@
-import React, { useContext, useState } from "react";
-import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import React, { useContext, useEffect, useState } from "react";
+import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { WorkoutContext } from "../context/WorkoutContext";
+import { useWorkoutStorage } from "../storage/WorkoutStorage";
 
 import WorkoutTaskForm from "./WorkoutTaskForm";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
@@ -10,6 +11,28 @@ import WorkoutTaskListItem from "./WorkoutTaskListItem";
 export default function WorkoutTaskList() {
     const [formVisible, setFormVisible] = useState(false);
     const context = useContext(WorkoutContext);
+    const storage = useWorkoutStorage();
+
+    useEffect(() => {
+        const fetchTasks = async () => {
+            const tasks = await storage.loadWorkoutTasks();
+            context.addTaskMultiple(tasks);
+        };
+        const sendTasks = async () => {
+            await storage.saveWorkoutTasks(context.tasks);
+        };
+
+        // do on component mount
+        fetchTasks().catch(console.error);
+
+        return () => {
+            // do on component unmount
+            //FIXME doesn't save on unmount
+            sendTasks().catch(console.error);
+        };
+
+    }, []);
+
 
     return (
         <View style={styles.content}>
@@ -23,10 +46,10 @@ export default function WorkoutTaskList() {
                     <WorkoutTaskForm onRequestClose={() => setFormVisible(false)}/>
                 </Modal>
 
-                <DraggableFlatList<number>
+                <DraggableFlatList<string>
                     data={context.taskOrder}
                     onDragEnd={({data}) => context.setTaskOrder(data)}
-                    keyExtractor={(item) => item.toString()}
+                    keyExtractor={(item) => item}
                     renderItem={(params) =>
                         // IDs in the task order list are always checked if they belong to valid tasks
                         // so we can non-null assert here
@@ -40,6 +63,15 @@ export default function WorkoutTaskList() {
                     <Text style={styles.addButtonText}>+</Text>
                 </TouchableOpacity>}
             </View>
+
+            {/*TODO delete debug buttons when done*/}
+            <Button title="Delet dis" onPress={() => {
+                context.clearTasks();
+                storage.clear();
+            }}/>
+            <Button title="Save dis" onPress={() => {
+                storage.saveWorkoutTasks(context.tasks);
+            }}/>
         </View>
     )
 }

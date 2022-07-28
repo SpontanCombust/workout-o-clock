@@ -1,3 +1,5 @@
+import { v4 as uuid } from 'uuid';
+
 export enum CompletionConditionType {
     TIME,
     REPS,
@@ -17,15 +19,13 @@ export interface CompletionConditionReps {
 export type CompletionCondition = CompletionConditionTime | CompletionConditionReps;
 
 export class WorkoutTask {
-    static idCounter = 0;
-
-    id: number;
+    uuid: string;
     title: string;
     completionCondition: CompletionCondition;
     cardColor: string;
 
     constructor(title: string, completionCondition: CompletionCondition, cardColor: string) {
-        this.id = WorkoutTask.idCounter++;
+        this.uuid = uuid();
         this.title = title;
         this.completionCondition = completionCondition;
         this.cardColor = cardColor;
