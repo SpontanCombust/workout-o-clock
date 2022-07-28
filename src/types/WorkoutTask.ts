@@ -1,7 +1,3 @@
-import { Realm } from "@realm/react";
-
-const { UUID } = Realm.BSON;
-
 export enum CompletionConditionType {
     TIME,
     REPS,
@@ -23,13 +19,13 @@ export type CompletionCondition = CompletionConditionTime | CompletionConditionR
 export class WorkoutTask {
     static idCounter = 0;
 
-    id: Realm.BSON.UUID;
+    id: number;
     title: string;
     completionCondition: CompletionCondition;
     cardColor: string;
 
     constructor(title: string, completionCondition: CompletionCondition, cardColor: string) {
-        this.id = new UUID();
+        this.id = WorkoutTask.idCounter++;
         this.title = title;
         this.completionCondition = completionCondition;
         this.cardColor = cardColor;

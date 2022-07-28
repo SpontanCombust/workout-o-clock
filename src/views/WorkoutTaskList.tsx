@@ -3,7 +3,6 @@ import { Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { WorkoutContext } from "../context/WorkoutContext";
 
-import { WorkoutTask } from "../types/WorkoutTask";
 import WorkoutTaskForm from "./WorkoutTaskForm";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
 
@@ -24,12 +23,14 @@ export default function WorkoutTaskList() {
                     <WorkoutTaskForm onRequestClose={() => setFormVisible(false)}/>
                 </Modal>
 
-                <DraggableFlatList<WorkoutTask>
-                    data={context.tasks}
-                    onDragEnd={({data}) => context.setTasks(data)}
-                    keyExtractor={(item) => item.id.toString()}
+                <DraggableFlatList<number>
+                    data={context.taskOrder}
+                    onDragEnd={({data}) => context.setTaskOrder(data)}
+                    keyExtractor={(item) => item.toString()}
                     renderItem={(params) =>
-                        <WorkoutTaskListItem task={params.item} onLongPress={params.drag} disabled={params.isActive} />
+                        // IDs in the task order list are always checked if they belong to valid tasks
+                        // so we can non-null assert here
+                        <WorkoutTaskListItem task={context.findTask(params.item)!} onLongPress={params.drag} disabled={params.isActive} />
                     }
                 />
             </View>
