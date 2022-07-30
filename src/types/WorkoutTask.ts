@@ -1,4 +1,4 @@
-import { v4 as uuid } from 'uuid';
+import uuid from "../utils/uuid";
 
 export enum CompletionConditionType {
     TIME,
