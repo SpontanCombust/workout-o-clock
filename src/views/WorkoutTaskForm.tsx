@@ -1,15 +1,16 @@
-import React, { useContext, useState } from "react";
-import { Button, Modal, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
-import { TriangleColorPicker } from "react-native-color-picker";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useContext, useEffect, useState } from "react";
+import { Button, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
 import { WorkoutContext, WorkoutContextProps } from "../context/WorkoutContext";
+import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { CompletionCondition, CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
 
-export default function WorkoutTaskForm(props: {
-    onRequestClose: () => void;
-}) {
+type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskForm'>;
+
+export default function WorkoutTaskForm({navigation, route}: NavProps) {
     const [completionCondDropdown, setCompletionCondDropdownOpen] = useState(false);
     const [completionCondDropdownValue, setCompletionCondDropdownValue] = useState(CompletionConditionType.TIME);
     const [completionCondDropdownItems, setCompletionCondDropdownItems] = useState([
@@ -21,12 +22,18 @@ export default function WorkoutTaskForm(props: {
     const [workoutTimeMinutes, setWorkoutTimeMinutes] = useState("");
     const [workoutTimeSeconds, setWorkoutTimeSeconds] = useState("");
     const [workoutReps, setWorkoutReps] = useState("");
-    const [colorPickerVisible, setColorPickerVisible] = useState(false);
     const [workoutCardColor, setWorkoutCardColor] = useState("springgreen");
 
     const context = useContext(WorkoutContext);
 
+    useEffect(() => {
+        if(route.params?.cardColor) {
+            setWorkoutCardColor(route.params.cardColor);
+        }
+    }, [route.params?.cardColor]);
+
     
+
     //DISCUSS make a seperate component for number text input
     function filterNonDigits(s: string): string {
         return s.replace(/\D+/g, '');
@@ -99,7 +106,7 @@ export default function WorkoutTaskForm(props: {
     return (
         <View style={styles.content}>
             <View style={styles.cancelXButtonView}>
-                <TouchableOpacity style={styles.cancelXButton} onPress={props.onRequestClose}>
+                <TouchableOpacity style={styles.cancelXButton} onPress={() => navigation.goBack()}>
                     <Text style={styles.cancelXButtonText}>X</Text>
                 </TouchableOpacity>
             </View>
@@ -128,35 +135,18 @@ export default function WorkoutTaskForm(props: {
                 </View>
             </View>
 
-            <Modal
-                animationType="fade"
-                transparent={true}
-                visible={colorPickerVisible}
-                onRequestClose={() => setColorPickerVisible(false)}
-            >
-                <View style={styles.colorPickerModalView}>
-                    <TriangleColorPicker
-                        oldColor={workoutCardColor}
-                        onColorSelected={(c: string) => {
-                            setWorkoutCardColor(c);
-                            setColorPickerVisible(false)
-                        }}
-                        style={{flex: 1}}
-                    />
-                </View>
-            </Modal>
             <View style={{flexDirection: "row", marginTop: 50}}>
-                <TouchableWithoutFeedback onPress={() => setColorPickerVisible(true)}>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: workoutCardColor})}>
                     <View style={[styles.colorPickerButton, {backgroundColor: workoutCardColor}]}></View>
                 </TouchableWithoutFeedback>
                 <Text>Select card color</Text>
             </View>
             
             <View style={styles.bottomButtonsView}>
-                <Button title="Cancel" onPress={props.onRequestClose}/>
-                <Button title="Save" onPress={() => { 
+                <Button title="Cancel" onPress={() => navigation.goBack()}/>
+                <Button title="Save" onPress={() => {
                     addNewWorkoutTask(context);
-                    props.onRequestClose();
+                    navigation.goBack();
                 }}/>
             </View>
         </View>

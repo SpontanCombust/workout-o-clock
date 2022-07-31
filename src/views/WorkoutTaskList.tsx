@@ -1,15 +1,19 @@
-import React, { useContext, useEffect, useState } from "react";
-import { Button, Modal, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { useIsFocused } from "@react-navigation/native";
+import { NativeStackScreenProps } from "@react-navigation/native-stack";
+import React, { useContext, useEffect } from "react";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { WorkoutContext } from "../context/WorkoutContext";
+import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { useWorkoutStorage } from "../storage/WorkoutStorage";
 
-import WorkoutTaskForm from "./WorkoutTaskForm";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
 
 
-export default function WorkoutTaskList() {
-    const [formVisible, setFormVisible] = useState(false);
+type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskList'>;
+
+export default function WorkoutTaskList({route, navigation} : NavProps) {
+    const focused = useIsFocused();
     const context = useContext(WorkoutContext);
     const storage = useWorkoutStorage();
 
@@ -18,34 +22,19 @@ export default function WorkoutTaskList() {
             const tasks = await storage.loadWorkoutTasks();
             context.addTaskMultiple(tasks);
         };
-        const sendTasks = async () => {
-            await storage.saveWorkoutTasks(context.tasks);
-        };
 
         // do on component mount
         fetchTasks().catch(console.error);
-
-        return () => {
-            // do on component unmount
-            //FIXME doesn't save on unmount
-            sendTasks().catch(console.error);
-        };
-
     }, []);
+
+    useEffect(() => {
+        storage.saveWorkoutTasks(context.tasks);
+    }, [context.tasks]);
 
 
     return (
         <View style={styles.content}>
             <View style={styles.listView}>
-                <Modal
-                    visible={formVisible}
-                    transparent={true}
-                    animationType="slide"
-                    onRequestClose={() => setFormVisible(false)}
-                >
-                    <WorkoutTaskForm onRequestClose={() => setFormVisible(false)}/>
-                </Modal>
-
                 <DraggableFlatList<string>
                     data={context.taskOrder}
                     onDragEnd={({data}) => context.setTaskOrder(data)}
@@ -58,20 +47,13 @@ export default function WorkoutTaskList() {
                 />
             </View>
             <View style={styles.addButtonBottomView}>
-                {!formVisible &&
-                <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => setFormVisible(!formVisible)}>
+                {focused &&
+                <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
+                    navigation.navigate("WorkoutTaskForm");
+                }}>
                     <Text style={styles.addButtonText}>+</Text>
                 </TouchableOpacity>}
             </View>
-
-            {/*TODO delete debug buttons when done*/}
-            <Button title="Delet dis" onPress={() => {
-                context.clearTasks();
-                storage.clear();
-            }}/>
-            <Button title="Save dis" onPress={() => {
-                storage.saveWorkoutTasks(context.tasks);
-            }}/>
         </View>
     )
 }
