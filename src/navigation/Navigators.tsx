@@ -3,9 +3,10 @@ import WorkoutTaskForm from "../views/WorkoutTaskForm";
 import WorkoutTaskFormColorPicker from "../views/WorkoutTaskFormColorPicker";
 
 import WorkoutTaskList from "../views/WorkoutTaskList";
+import NavigatorsParamList from "./NavigatorsParamList";
 
 
-const RootStack = createNativeStackNavigator();
+const RootStack = createNativeStackNavigator<NavigatorsParamList>();
 
 export default function Navigators() {
     return (

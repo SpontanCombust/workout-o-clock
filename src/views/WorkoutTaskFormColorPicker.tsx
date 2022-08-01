@@ -13,7 +13,10 @@ export default function WorkoutTaskFormColorPicker({navigation, route}: NavProps
         <View style={styles.colorPickerModalView}>
             <TriangleColorPicker
                 oldColor={route.params.oldColor}
-                onColorSelected={(c: string) => navigation.navigate('WorkoutTaskForm', {cardColor: c})}
+                onColorSelected={(c: string) => {
+                    route.params.setColor(c);
+                    navigation.goBack();
+                }}
                 style={{flex: 1}}
             />
         </View>

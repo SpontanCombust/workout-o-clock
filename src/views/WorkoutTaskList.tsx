@@ -42,14 +42,18 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                     renderItem={(params) =>
                         // IDs in the task order list are always checked if they belong to valid tasks
                         // so we can non-null assert here
-                        <WorkoutTaskListItem task={context.findTask(params.item)!} onLongPress={params.drag} disabled={params.isActive} />
+                        <WorkoutTaskListItem 
+                            task={context.findTask(params.item)!}
+                            onPress={() => navigation.navigate("WorkoutTaskForm", {editedTask: context.findTask(params.item)})}
+                            onLongPress={params.drag} 
+                            disabled={params.isActive} />
                     }
                 />
             </View>
             <View style={styles.addButtonBottomView}>
                 {focused &&
                 <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
-                    navigation.navigate("WorkoutTaskForm");
+                    navigation.navigate("WorkoutTaskForm", {editedTask: undefined});
                 }}>
                     <Text style={styles.addButtonText}>+</Text>
                 </TouchableOpacity>}

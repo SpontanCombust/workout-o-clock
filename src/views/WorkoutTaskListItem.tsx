@@ -9,6 +9,7 @@ import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
 export default function WorkoutTaskListItem(props: {
     task: WorkoutTask;
+    onPress: () => void;
     onLongPress: () => void;
     disabled: boolean;
 }) {
@@ -37,6 +38,7 @@ export default function WorkoutTaskListItem(props: {
     <ScaleDecorator>
         <TouchableOpacity
             activeOpacity={1.0}
+            onPress={props.onPress}
             onLongPress={props.onLongPress}
             disabled={props.disabled}
             style={[

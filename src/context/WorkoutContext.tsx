@@ -4,7 +4,6 @@ import { WorkoutTask } from "../types/WorkoutTask";
 
 
 export interface WorkoutContextProps {
-    //TODO save to persistent storage
     // Don't reassign directly! Use add/removeTask
     tasks: WorkoutTask[];
     // Don't reassign directly! Use setTaskOrder
@@ -12,6 +11,7 @@ export interface WorkoutContextProps {
 
     addTask: (task: WorkoutTask) => void;
     addTaskMultiple: (tasks: WorkoutTask[]) => void;
+    updateTask: (uuid: string, task: WorkoutTask) => void;
     removeTask: (uuid: string) => void;
     clearTasks: () => void;
     findTask: (uuid: string) => WorkoutTask | undefined;
@@ -24,6 +24,7 @@ const initialState: WorkoutContextProps = {
 
     addTask: () => {},
     addTaskMultiple: () => {},
+    updateTask: () => {},
     removeTask: () => {},
     clearTasks: () => {},
     findTask: () => undefined,
@@ -42,6 +43,11 @@ interface WorkoutReducerActionAddTaskMultiple {
     type: "ADD_TASK_MULTIPLE";
     tasks: WorkoutTask[];
 }
+interface WorkoutReducerActionUpdateTask {
+    type: "UPDATE_TASK";
+    uuid: string;
+    task: WorkoutTask;
+}
 interface WorkoutReducerActionRemoveTask {
     type: "REMOVE_TASK";
     uuid: string;
@@ -58,6 +64,7 @@ interface WorkoutReducerActionSetTaskOrder {
 type WorkoutReducerAction = 
     WorkoutReducerActionAddTask         |
     WorkoutReducerActionAddTaskMultiple |
+    WorkoutReducerActionUpdateTask      |
     WorkoutReducerActionRemoveTask      |
     WorkoutReducerActionClearTasks      |
     WorkoutReducerActionSetTaskOrder    ;
@@ -75,6 +82,11 @@ function WorkoutReducer(state: WorkoutContextProps, action: WorkoutReducerAction
                 ...state,
                 tasks: [...state.tasks, ...action.tasks],
                 taskOrder: [...state.taskOrder, ...action.tasks.map(task => task.uuid)],
+            };
+        case "UPDATE_TASK":
+            return {
+                ...state,
+                tasks: state.tasks.map(task => task.uuid === action.uuid ? action.task : task),
             };
         case "REMOVE_TASK":
             return {
@@ -111,6 +123,9 @@ export function WorkoutContextProvider(props: {children: any}) {
     function addTaskMultiple(tasks: WorkoutTask[]) {
         dispatch({type: "ADD_TASK_MULTIPLE", tasks: tasks});
     }
+    function updateTask(uuid: string, task: WorkoutTask) {
+        dispatch({type: "UPDATE_TASK", uuid: uuid, task: task});
+    }
     function removeTask(uuid: string) {
         dispatch({type: "REMOVE_TASK", uuid: uuid});
     }
@@ -131,6 +146,7 @@ export function WorkoutContextProvider(props: {children: any}) {
         ...state,
         addTask: addTask,
         addTaskMultiple: addTaskMultiple,
+        updateTask: updateTask,
         removeTask: removeTask,
         clearTasks: clearTasks,
         findTask: findTask,

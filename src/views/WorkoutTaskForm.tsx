@@ -18,25 +18,37 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
         {value: CompletionConditionType.REPS, label: 'Reps'},
     ]);
 
-    const [workoutTitle, setWorkoutTitle] = useState("");
-    const [workoutTimeMinutes, setWorkoutTimeMinutes] = useState("");
-    const [workoutTimeSeconds, setWorkoutTimeSeconds] = useState("");
-    const [workoutReps, setWorkoutReps] = useState("");
-    const [workoutCardColor, setWorkoutCardColor] = useState("springgreen");
+    console.log(route.params?.editedTask);
+
+    const [title, setTitle] = useState("New Task");
+    const [timeMinutes, setTimeMinutes] = useState(0);
+    const [timeSeconds, setTimeSeconds] = useState(0);
+    const [reps, setReps] = useState(0);
+    const [cardColor, setCardColor] = useState("springgreen");
 
     const context = useContext(WorkoutContext);
 
     useEffect(() => {
-        if(route.params?.cardColor) {
-            setWorkoutCardColor(route.params.cardColor);
+        if(route.params.editedTask !== undefined) {
+            setTitle(route.params.editedTask.title);
+            if(route.params.editedTask.completionCondition.type === CompletionConditionType.TIME) {
+                setCompletionCondDropdownValue(CompletionConditionType.TIME);
+                setTimeMinutes(route.params.editedTask.completionCondition.minutes);
+                setTimeSeconds(route.params.editedTask.completionCondition.seconds);
+            } else {
+                setCompletionCondDropdownValue(CompletionConditionType.REPS);
+                setReps(route.params.editedTask.completionCondition.reps);
+            }
+            setCardColor(route.params.editedTask.cardColor);
         }
-    }, [route.params?.cardColor]);
-
+    }, [])
+    
     
 
-    //DISCUSS make a seperate component for number text input
-    function filterNonDigits(s: string): string {
-        return s.replace(/\D+/g, '');
+    function parseIntSafe(s: string): number {
+        s.replace(/\D+/g, '');
+        const n = parseInt(s);
+        return isNaN(n) ? 0 : n;
     }
 
     function CompletionCondInput(): JSX.Element {
@@ -46,8 +58,8 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 style={[styles.timeTextInput, styles.completionCondInputContent]} 
                 keyboardType="numeric" 
                 placeholder={"mm"}
-                value={workoutTimeMinutes}
-                onChangeText={(s: string) => setWorkoutTimeMinutes(filterNonDigits(s))}
+                value={timeMinutes > 0 ? timeMinutes.toString() : ""}
+                onChangeText={(s: string) => setTimeMinutes(parseIntSafe(s))}
                 maxLength={2}
             />
             <Text style={styles.completionCondInputContent}> : </Text>
@@ -55,8 +67,8 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 style={[styles.timeTextInput, styles.completionCondInputContent]} 
                 keyboardType="numeric" 
                 placeholder={"ss"}
-                value={workoutTimeSeconds}
-                onChangeText={(s: string) => setWorkoutTimeSeconds(filterNonDigits(s))}
+                value={timeSeconds > 0 ? timeSeconds.toString() : ""}
+                onChangeText={(s: string) => setTimeSeconds(parseIntSafe(s))}
                 maxLength={2}
             />
             </>
@@ -66,38 +78,42 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 style={[styles.repsTextInput, styles.completionCondInputContent]} 
                 keyboardType="numeric" 
                 placeholder="Reps"
-                value={workoutReps}
-                onChangeText={(s: string) => setWorkoutReps(filterNonDigits(s))}
+                value={reps > 0 ? reps.toString() : ""}
+                onChangeText={(s: string) => setReps(parseIntSafe(s))}
                 maxLength={4}
             />)
         }
     }
 
-    function parseIntSafe(s: string): number {
-        const n = parseInt(s);
-        return isNaN(n) ? 0 : n;
-    }
-
-    function addNewWorkoutTask(context: WorkoutContextProps) {
+    function saveWorkoutTask(context: WorkoutContextProps) {
         let completionCondition: CompletionCondition;
         if(completionCondDropdownValue == CompletionConditionType.TIME) {
             completionCondition = {
                 type: CompletionConditionType.TIME,
-                minutes: parseIntSafe(workoutTimeMinutes),
-                seconds: parseIntSafe(workoutTimeSeconds),
+                minutes: timeMinutes,
+                seconds: timeSeconds,
             };
         } else {
             completionCondition = {
                 type: CompletionConditionType.REPS,
-                reps: parseIntSafe(workoutReps),
+                reps: reps,
             }
         }
 
-        context.addTask(new WorkoutTask(
-            workoutTitle,
-            completionCondition,
-            workoutCardColor
-        ));
+        if(route.params.editedTask !== undefined) {
+            context.updateTask(route.params.editedTask.uuid, {
+                ...route.params.editedTask,
+                title: title,
+                completionCondition: completionCondition,
+                cardColor: cardColor,
+            });
+        } else {
+            context.addTask(new WorkoutTask(
+                title,
+                completionCondition,
+                cardColor
+            ));
+        }
     }
 
 
@@ -113,7 +129,10 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
 
             <Text style={styles.header}>New workout task</Text>
 
-            <TextInput onChangeText={setWorkoutTitle} style={styles.titleTextInput} placeholder="Title"/>
+            <TextInput 
+                value={title}
+                onChangeText={(text: string) => setTitle(text)} 
+                style={styles.titleTextInput} placeholder="Title"/>
 
             <View style={styles.completionCondView}>
                 <View style={{width: '40%', flexDirection: "column"}}>
@@ -136,8 +155,8 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
             </View>
 
             <View style={{flexDirection: "row", marginTop: 50}}>
-                <TouchableWithoutFeedback onPress={() => navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: workoutCardColor})}>
-                    <View style={[styles.colorPickerButton, {backgroundColor: workoutCardColor}]}></View>
+                <TouchableWithoutFeedback onPress={() => navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: cardColor, setColor: setCardColor})}>
+                    <View style={[styles.colorPickerButton, {backgroundColor: cardColor}]}></View>
                 </TouchableWithoutFeedback>
                 <Text>Select card color</Text>
             </View>
@@ -145,7 +164,7 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
             <View style={styles.bottomButtonsView}>
                 <Button title="Cancel" onPress={() => navigation.goBack()}/>
                 <Button title="Save" onPress={() => {
-                    addNewWorkoutTask(context);
+                    saveWorkoutTask(context);
                     navigation.goBack();
                 }}/>
             </View>
@@ -243,11 +262,6 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "black",
         marginRight: 10,
-    },
-    colorPickerModalView: {
-        flex: 1,
-        paddingVertical: 20,
-        backgroundColor: 'rgba(0, 0, 0, 0.9)',
     },
     bottomButtonsView: {
         flexDirection: "row",
