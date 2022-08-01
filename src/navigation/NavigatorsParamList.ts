@@ -1,7 +1,7 @@
 import { WorkoutTask } from "../types/WorkoutTask";
 
 type NavigatorsParamList = {
-    Home: undefined;
+    // Home: undefined;
     WorkoutTaskList: undefined;
     WorkoutTaskForm: {
         editedTask?: WorkoutTask;
@@ -10,6 +10,9 @@ type NavigatorsParamList = {
         oldColor: string,
         setColor: (s: string) => void,
     };
+    WorkoutPlaybackView: {
+        currentTaskOrderIndex: number;
+    }
 }
 
 export default NavigatorsParamList;

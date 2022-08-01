@@ -71,6 +71,7 @@ type WorkoutReducerAction =
 
 function WorkoutReducer(state: WorkoutContextProps, action: WorkoutReducerAction): WorkoutContextProps {
     switch (action.type) {
+        //TODO check for duplicates
         case "ADD_TASK":
             return {
                 ...state, 

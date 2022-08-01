@@ -20,6 +20,7 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
     useEffect(() => {
         const fetchTasks = async () => {
             const tasks = await storage.loadWorkoutTasks();
+            // context.clearTasks();
             context.addTaskMultiple(tasks);
         };
 
@@ -50,13 +51,21 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                     }
                 />
             </View>
-            <View style={styles.addButtonBottomView}>
-                {focused &&
-                <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
-                    navigation.navigate("WorkoutTaskForm", {editedTask: undefined});
-                }}>
-                    <Text style={styles.addButtonText}>+</Text>
-                </TouchableOpacity>}
+            <View style={styles.bottomButtonsView}>
+                {focused && <>
+                    <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
+                        navigation.navigate("WorkoutTaskForm", {editedTask: undefined});
+                    }}>
+                        <Text style={styles.addButtonText}>+</Text>
+                    </TouchableOpacity>
+                    
+                    {/*TODO proper new button styling */}
+                    <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
+                        navigation.navigate("WorkoutPlaybackView", {currentTaskOrderIndex: 0});
+                    }}>
+                        <Text style={styles.addButtonText}>{">"}</Text>
+                    </TouchableOpacity>
+                </>}
             </View>
         </View>
     )
@@ -73,8 +82,9 @@ const styles = StyleSheet.create({
         alignItems: "stretch",
         marginTop: 50,
     },
-    addButtonBottomView: {
+    bottomButtonsView: {
         flex: 1,
+        flexDirection: "row",
         justifyContent: "center",
         alignItems: "center"
     },

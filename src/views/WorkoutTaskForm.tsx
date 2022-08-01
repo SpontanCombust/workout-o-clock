@@ -159,6 +159,7 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
             </View>
 
             <View style={{flexDirection: "row", marginTop: 50}}>
+                {/*TODO lose focus on text fields when color picker is in focus*/}
                 <TouchableWithoutFeedback onPress={() => navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: cardColor, setColor: setCardColor})}>
                     <View style={[styles.colorPickerButton, {backgroundColor: cardColor}]}></View>
                 </TouchableWithoutFeedback>
