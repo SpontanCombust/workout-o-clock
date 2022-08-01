@@ -1,8 +1,10 @@
-import React from "react";
-import { StyleSheet, Text, View } from "react-native";
+import React, { useContext } from "react";
+import { StyleSheet, Text, TouchableWithoutFeedback, View } from "react-native";
 import { fromHsv, toHsv } from "react-native-color-picker";
 import { ScaleDecorator } from "react-native-draggable-flatlist";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import SwipeableItem from 'react-native-swipeable-item'
+import { WorkoutContext } from "../context/WorkoutContext";
 
 import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
@@ -13,6 +15,8 @@ export default function WorkoutTaskListItem(props: {
     onLongPress: () => void;
     disabled: boolean;
 }) {
+    const context = useContext(WorkoutContext);
+
     let movingCardColor = toHsv(props.task.cardColor);
     movingCardColor.v -= 0.1;
     
@@ -34,21 +38,38 @@ export default function WorkoutTaskListItem(props: {
         }
     }
 
+    function UnderlayDeleteItem() : JSX.Element {
+        return (
+            <View style={styles.underlayItemView}>
+                <TouchableWithoutFeedback onPress={() => context.removeTask(props.task.uuid)}>
+                    <Text style={styles.underlayItemText}>DELETE</Text>
+                </TouchableWithoutFeedback>
+            </View>
+        )
+    }
+
     return (
     <ScaleDecorator>
-        <TouchableOpacity
-            activeOpacity={1.0}
-            onPress={props.onPress}
-            onLongPress={props.onLongPress}
-            disabled={props.disabled}
-            style={[
-                styles.content,
-                props.disabled ? {backgroundColor: fromHsv(movingCardColor)} : {backgroundColor: props.task.cardColor},
-            ]}
+        <SwipeableItem<WorkoutTask>
+            item={props.task}
+            renderUnderlayLeft={() => <UnderlayDeleteItem/>}
+            snapPointsLeft={[150]}
+            activationThreshold={10}
         >
-            <Text style={styles.titleText}>{props.task.title}</Text>
-            {CompletionConditionView()}
-        </TouchableOpacity>
+            <TouchableOpacity
+                activeOpacity={1.0}
+                onPress={props.onPress}
+                onLongPress={props.onLongPress}
+                disabled={props.disabled}
+                style={[
+                    styles.content,
+                    props.disabled ? {backgroundColor: fromHsv(movingCardColor)} : {backgroundColor: props.task.cardColor},
+                ]}
+            >
+                <Text style={styles.titleText}>{props.task.title}</Text>
+                {CompletionConditionView()}
+            </TouchableOpacity>
+        </SwipeableItem>
     </ScaleDecorator>
     )
 }
@@ -61,12 +82,6 @@ const styles = StyleSheet.create({
         paddingLeft: 40,
         paddingVertical: 10,
     },
-    contentDisabled: {
-        backgroundColor: "mediumspringgreen",
-    },
-    contentEnabled: {
-        backgroundColor: "springgreen",
-    },
     titleText: {
         fontSize: 20,
         fontWeight: "bold",
@@ -76,5 +91,17 @@ const styles = StyleSheet.create({
         fontSize: 30,
         color: "black",
         fontWeight: "200"
+    },
+    underlayItemView: {
+        backgroundColor: "red", 
+        flex: 1, 
+        justifyContent: "center", 
+        alignItems: "flex-end",
+        paddingRight: 40
+    },
+    underlayItemText: {
+        color: "white",
+        fontSize: 20,
+        fontWeight: "bold",
     }
 })

@@ -1,11 +1,17 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect, useState } from "react";
-import { Button, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Button, LogBox, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
 import { WorkoutContext, WorkoutContextProps } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { CompletionCondition, CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
+
+
+// Ignore messages about non-serializable data when navigating to WorkoutTaskFormColorPicker
+LogBox.ignoreLogs([
+    'Non-serializable values were found in the navigation state',
+]);
 
 
 type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskForm'>;
@@ -17,8 +23,6 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
         {value: CompletionConditionType.TIME, label: 'Time'},
         {value: CompletionConditionType.REPS, label: 'Reps'},
     ]);
-
-    console.log(route.params?.editedTask);
 
     const [title, setTitle] = useState("New Task");
     const [timeMinutes, setTimeMinutes] = useState(0);

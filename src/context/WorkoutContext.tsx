@@ -84,10 +84,11 @@ function WorkoutReducer(state: WorkoutContextProps, action: WorkoutReducerAction
                 taskOrder: [...state.taskOrder, ...action.tasks.map(task => task.uuid)],
             };
         case "UPDATE_TASK":
-            return {
-                ...state,
-                tasks: state.tasks.map(task => task.uuid === action.uuid ? action.task : task),
-            };
+            const i = state.tasks.findIndex(task => task.uuid == action.uuid);
+            if(i != -1) {
+                state.tasks[i] = action.task;
+            }
+            return state;
         case "REMOVE_TASK":
             return {
                 ...state, 
