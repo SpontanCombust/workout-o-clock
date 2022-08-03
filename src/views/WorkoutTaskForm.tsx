@@ -1,17 +1,11 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect, useState } from "react";
-import { Button, LogBox, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Button, Keyboard, LogBox, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
 import { WorkoutContext, WorkoutContextProps } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { CompletionCondition, CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
-
-
-// Ignore messages about non-serializable data when navigating to WorkoutTaskFormColorPicker
-LogBox.ignoreLogs([
-    'Non-serializable values were found in the navigation state',
-]);
 
 
 type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskForm'>;
@@ -124,56 +118,63 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
 
 
     return (
-        <View style={styles.content}>
-            <View style={styles.cancelXButtonView}>
-                <TouchableOpacity style={styles.cancelXButton} onPress={() => navigation.goBack()}>
-                    <Text style={styles.cancelXButtonText}>X</Text>
-                </TouchableOpacity>
-            </View>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.content}>
+                <View style={styles.cancelXButtonView}>
+                    <TouchableOpacity style={styles.cancelXButton} onPress={() => navigation.goBack()}>
+                        <Text style={styles.cancelXButtonText}>X</Text>
+                    </TouchableOpacity>
+                </View>
 
-            <Text style={styles.header}>New workout task</Text>
+                <Text style={styles.header}>New workout task</Text>
 
-            <TextInput 
-                value={title}
-                onChangeText={(text: string) => setTitle(text)} 
-                style={styles.titleTextInput} placeholder="Title"/>
+                <Text>Title</Text>
+                <TextInput 
+                    value={title}
+                    onChangeText={(text: string) => setTitle(text)} 
+                    style={styles.titleTextInput}/>
 
-            <View style={styles.completionCondView}>
-                <View style={{width: '40%', flexDirection: "column"}}>
+                <View style={styles.completionCondView}>
                     <Text>Completion condition</Text>
-                    <DropDownPicker
-                        open={completionCondDropdown}
-                        setOpen={setCompletionCondDropdownOpen}
-                        items={completionCondDropdownItems}
-                        setItems={setCompletionCondDropdownItems}
-                        value={completionCondDropdownValue}
-                        setValue={setCompletionCondDropdownValue}
+                    <View style={{flexDirection: "row"}}>
+                        <View style={{width: '35%'}}>
+                            <DropDownPicker
+                                open={completionCondDropdown}
+                                setOpen={setCompletionCondDropdownOpen}
+                                items={completionCondDropdownItems}
+                                setItems={setCompletionCondDropdownItems}
+                                value={completionCondDropdownValue}
+                                setValue={setCompletionCondDropdownValue}
+                                
+                                style={styles.completionConditionDropdown}
+                            />
+                        </View>
 
-                        style={styles.completionConditionDropdown}
-                    />
+                        <View style={styles.completionConditionInputView}>
+                            {CompletionCondInput()}
+                        </View>
+                    </View>
                 </View>
 
-                <View style={{flexDirection: "row", marginLeft: 30}}>
-                    {CompletionCondInput()}
+                <View style={{flexDirection: "row", marginTop: 50}}>
+                    <TouchableWithoutFeedback onPress={() => {
+                        Keyboard.dismiss();
+                        navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: cardColor, setColor: setCardColor});
+                    }}>
+                        <View style={[styles.colorPickerButton, {backgroundColor: cardColor}]}></View>
+                    </TouchableWithoutFeedback>
+                    <Text style={{marginTop: 5}}>Select card color</Text>
+                </View>
+                
+                <View style={styles.bottomButtonsView}>
+                    <Button title="Cancel" onPress={() => navigation.goBack()}/>
+                    <Button title="Save" onPress={() => {
+                        saveWorkoutTask(context);
+                        navigation.goBack();
+                    }}/>
                 </View>
             </View>
-
-            <View style={{flexDirection: "row", marginTop: 50}}>
-                {/*TODO lose focus on text fields when color picker is in focus*/}
-                <TouchableWithoutFeedback onPress={() => navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: cardColor, setColor: setCardColor})}>
-                    <View style={[styles.colorPickerButton, {backgroundColor: cardColor}]}></View>
-                </TouchableWithoutFeedback>
-                <Text>Select card color</Text>
-            </View>
-            
-            <View style={styles.bottomButtonsView}>
-                <Button title="Cancel" onPress={() => navigation.goBack()}/>
-                <Button title="Save" onPress={() => {
-                    saveWorkoutTask(context);
-                    navigation.goBack();
-                }}/>
-            </View>
-        </View>
+        </TouchableWithoutFeedback>
     )
 }
 
@@ -230,17 +231,22 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
     },
-    //TODO fix children alignment
     completionCondView: {
-        flexDirection: "row",
+        flexDirection: "column",
         marginTop: 15,
         height: 60,    
     },
     completionConditionDropdown: {
-        height: 40,
+        height: 60,
         borderColor: "gray",
         borderWidth: 1,
         borderRadius: 5,
+    },
+    completionConditionInputView: {
+        flexDirection: "row", 
+        justifyContent: "center",
+
+        width: '70%',
     },
     timeTextInput: {
         borderWidth: 1,
@@ -253,7 +259,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderRadius: 5,
         borderColor: "gray",
-        width: 100,
+        width: '85%',
         height: 60,
     },
     completionCondInputContent: {
