@@ -8,6 +8,7 @@ import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { useWorkoutStorage } from "../storage/WorkoutStorage";
 
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
+import WorkoutTaskListFooter from "./WorkoutTaskListFooter";
 
 
 type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskList'>;
@@ -49,20 +50,15 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                             onLongPress={params.drag} 
                             disabled={params.isActive} />
                     }
+                    ListFooterComponent={<WorkoutTaskListFooter onPress={() => navigation.navigate("WorkoutTaskForm", {})}/>}
                 />
             </View>
             <View style={styles.bottomButtonsView}>
-                {focused && <>
-                    <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
-                        navigation.navigate("WorkoutTaskForm", {editedTask: undefined});
-                    }}>
-                        <Text style={styles.addButtonText}>+</Text>
-                    </TouchableOpacity>
-                    
-                    {/*TODO proper new button styling */}
+                {focused && <>                   
                     <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
                         navigation.navigate("WorkoutPlaybackView", {currentTaskOrderIndex: 0});
                     }}>
+                        {/*TODO set content as svg arrow image*/}
                         <Text style={styles.addButtonText}>{">"}</Text>
                     </TouchableOpacity>
                 </>}
@@ -78,7 +74,7 @@ const styles = StyleSheet.create({
         backgroundColor: "cyan",
     },
     listView: {
-        flex: 9,
+        flex: 8,
         alignItems: "stretch",
         marginTop: 50,
     },
@@ -86,31 +82,39 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: "row",
         justifyContent: "center",
-        alignItems: "center"
+        alignItems: "center",
+
+        marginTop: 5, 
+
+        backgroundColor: "white",
     },
-    //FIXME button changes shape as the listView changes height/vertargin
     addButton: {
-        flexDirection: "row",
         justifyContent: "center",
         alignItems: "center",
 
-        marginBottom: 10,
-        paddingHorizontal: 20,
-        paddingBottom: 15,
+        marginVertical: 10,
 
+        width: 70,
+        height: 70,
+        
+        borderColor: "lawngreen",
+        borderWidth: 1,
         borderRadius: 10,
 
         elevation: 5,
-        shadowRadius: 10,
-        shadowOffset: {width: 10, height: 5},
+        shadowRadius: 5,
+        shadowOffset: {width: 3, height: 5},
         shadowColor: "black",
 
         backgroundColor: "white",
     },
     addButtonText: {
         color: "lawngreen",
-        fontSize: 50,
+        fontSize: 80,
         fontWeight: "bold",
         fontStyle: "normal",
+
+        position: "absolute",
+        top: -25,
     }
 })

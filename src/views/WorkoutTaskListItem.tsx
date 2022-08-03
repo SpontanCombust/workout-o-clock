@@ -81,6 +81,7 @@ const styles = StyleSheet.create({
 
         paddingLeft: 40,
         paddingVertical: 10,
+        minHeight: 90,
     },
     titleText: {
         fontSize: 20,
