@@ -73,16 +73,23 @@ function WorkoutReducer(state: WorkoutContextProps, action: WorkoutReducerAction
     switch (action.type) {
         //TODO check for duplicates
         case "ADD_TASK":
-            return {
-                ...state, 
-                tasks: [...state.tasks, action.task],
-                taskOrder: [...state.taskOrder, action.task.uuid],
-            };
+            if(state.tasks.find(task => task.uuid === action.task.uuid) !== undefined) {
+                return {
+                    ...state,
+                }
+            } else {
+                return {
+                    ...state, 
+                    tasks: [...state.tasks, action.task],
+                    taskOrder: [...state.taskOrder, action.task.uuid],
+                };
+            }
         case "ADD_TASK_MULTIPLE":
+            const validTasks = action.tasks.filter(task => state.tasks.find(t => t.uuid === task.uuid) === undefined);
             return {
                 ...state,
-                tasks: [...state.tasks, ...action.tasks],
-                taskOrder: [...state.taskOrder, ...action.tasks.map(task => task.uuid)],
+                tasks: [...state.tasks, ...validTasks],
+                taskOrder: [...state.taskOrder, ...validTasks.map(task => task.uuid)],
             };
         case "UPDATE_TASK":
             const i = state.tasks.findIndex(task => task.uuid == action.uuid);
