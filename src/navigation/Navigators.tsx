@@ -1,4 +1,5 @@
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
+import WorkoutPlaybackFinishView from "../views/WorkoutPlaybackFinishView";
 
 import WorkoutPlaybackView from "../views/WorkoutPlaybackView";
 import WorkoutTaskForm from "../views/WorkoutTaskForm";
@@ -41,6 +42,13 @@ export default function Navigators() {
                 options={{
                     headerShown: false,
                     animation: "slide_from_right",
+                }}/>
+            <RootStack.Screen
+                name="WorkoutPlaybackFinishView"
+                component={WorkoutPlaybackFinishView}
+                options={{
+                    headerShown: false,
+                    animation: "simple_push",
                 }}/>
         </RootStack.Navigator>
     )

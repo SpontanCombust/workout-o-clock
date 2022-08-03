@@ -13,6 +13,7 @@ type NavigatorsParamList = {
     WorkoutPlaybackView: {
         currentTaskOrderIndex: number;
     }
+    WorkoutPlaybackFinishView: undefined;
 }
 
 export default NavigatorsParamList;
