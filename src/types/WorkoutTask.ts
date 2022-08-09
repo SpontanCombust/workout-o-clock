@@ -1,4 +1,4 @@
-import uuid from "../utils/uuid";
+import { StorageObject } from "../storage/AsyncStorageSQL";
 
 export enum CompletionConditionType {
     TIME,
@@ -18,14 +18,13 @@ export interface CompletionConditionReps {
 
 export type CompletionCondition = CompletionConditionTime | CompletionConditionReps;
 
-export class WorkoutTask {
-    uuid: string;
+export class WorkoutTask extends StorageObject {
     title: string;
     completionCondition: CompletionCondition;
     cardColor: string;
 
     constructor(title: string, completionCondition: CompletionCondition, cardColor: string) {
-        this.uuid = uuid();
+        super();
         this.title = title;
         this.completionCondition = completionCondition;
         this.cardColor = cardColor;

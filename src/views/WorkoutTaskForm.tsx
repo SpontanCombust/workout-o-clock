@@ -99,7 +99,7 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
         }
 
         if(route.params.editedTask !== undefined) {
-            context.updateTask(route.params.editedTask.uuid, {
+            context.updateTask(route.params.editedTask.id, {
                 ...route.params.editedTask,
                 title: title,
                 completionCondition: completionCondition,

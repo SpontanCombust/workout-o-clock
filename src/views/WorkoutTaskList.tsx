@@ -5,10 +5,9 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { WorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
-import { useWorkoutStorage } from "../storage/WorkoutStorage";
 
-import WorkoutTaskListItem from "./WorkoutTaskListItem";
 import WorkoutTaskListFooter from "./WorkoutTaskListFooter";
+import WorkoutTaskListItem from "./WorkoutTaskListItem";
 
 
 type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskList'>;
@@ -16,22 +15,11 @@ type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskList'>;
 export default function WorkoutTaskList({route, navigation} : NavProps) {
     const focused = useIsFocused();
     const context = useContext(WorkoutContext);
-    const storage = useWorkoutStorage();
 
     useEffect(() => {
-        const fetchTasks = async () => {
-            const tasks = await storage.loadWorkoutTasks();
-            // context.clearTasks();
-            context.addTaskMultiple(tasks);
-        };
-
         // do on component mount
-        fetchTasks().catch(console.error);
+        context.loadFromStorage().catch(console.error);
     }, []);
-
-    useEffect(() => {
-        storage.saveWorkoutTasks(context.tasks);
-    }, [context.tasks]);
 
 
     return (

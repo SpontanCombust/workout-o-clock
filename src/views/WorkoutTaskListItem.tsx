@@ -41,7 +41,7 @@ export default function WorkoutTaskListItem(props: {
     function UnderlayDeleteItem() : JSX.Element {
         return (
             <View style={styles.underlayItemView}>
-                <TouchableWithoutFeedback onPress={() => context.removeTask(props.task.uuid)}>
+                <TouchableWithoutFeedback onPress={() => context.removeTask(props.task.id)}>
                     <Text style={styles.underlayItemText}>DELETE</Text>
                 </TouchableWithoutFeedback>
             </View>
