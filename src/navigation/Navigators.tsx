@@ -38,7 +38,7 @@ export default function Navigators() {
             <RootStack.Screen
                 name="WorkoutPlaybackView"
                 component={WorkoutPlaybackView}
-                initialParams={{currentTaskOrderIndex: 0}}
+                initialParams={{currentTaskIndex: 0}}
                 options={{
                     headerShown: false,
                     animation: "slide_from_right",

@@ -5,6 +5,7 @@ import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 import { WorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
+import { WorkoutTask } from "../types/WorkoutTask";
 
 import WorkoutTaskListFooter from "./WorkoutTaskListFooter";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
@@ -18,23 +19,21 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
 
     useEffect(() => {
         // do on component mount
-        context.loadFromStorage().catch(console.error);
+        context.loadTasksFromStorage().catch(console.error);
     }, []);
 
 
     return (
         <View style={styles.content}>
             <View style={styles.listView}>
-                <DraggableFlatList<string>
-                    data={context.taskOrder}
-                    onDragEnd={({data}) => context.setTaskOrder(data)}
-                    keyExtractor={(item) => item}
+                <DraggableFlatList<WorkoutTask>
+                    data={context.currentTasksCache}
+                    onDragEnd={({data}) => context.reorderTasks(data)}
+                    keyExtractor={(item) => item.id}
                     renderItem={(params) =>
-                        // IDs in the task order list are always checked if they belong to valid tasks
-                        // so we can non-null assert here
                         <WorkoutTaskListItem 
-                            task={context.findTask(params.item)!}
-                            onPress={() => navigation.navigate("WorkoutTaskForm", {editedTask: context.findTask(params.item)})}
+                            task={params.item}
+                            onPress={() => navigation.navigate("WorkoutTaskForm", {editedTask: params.item})}
                             onLongPress={params.drag} 
                             disabled={params.isActive} />
                     }
@@ -44,7 +43,7 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
             <View style={styles.bottomButtonsView}>
                 {focused && <>                   
                     <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
-                        navigation.navigate("WorkoutPlaybackView", {currentTaskOrderIndex: 0});
+                        navigation.navigate("WorkoutPlaybackView", {currentTaskIndex: 0});
                     }}>
                         {/*TODO set content as svg arrow image*/}
                         <Text style={styles.addButtonText}>{">"}</Text>

@@ -11,7 +11,7 @@ type NavigatorsParamList = {
         setColor: (s: string) => void,
     };
     WorkoutPlaybackView: {
-        currentTaskOrderIndex: number;
+        currentTaskIndex: number;
     }
     WorkoutPlaybackFinishView: undefined;
 }

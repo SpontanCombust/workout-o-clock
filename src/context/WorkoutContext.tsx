@@ -6,36 +6,36 @@ import { WorkoutTask } from "../types/WorkoutTask";
 
 
 export interface WorkoutContextProps {
-    // Don't reassign directly! Use add/removeTask
-    tasks: WorkoutTask[];
-    // Don't reassign directly! Use setTaskOrder
-    taskOrder: string[]; // array od UUIDs
+    readonly storage: WorkoutStorage;
 
-    addTask: (task: WorkoutTask) => void;
-    updateTask: (id: string, task: WorkoutTask) => void;
-    removeTask: (id: string) => void;
-    clearTasks: () => void;
+    // Don't reassign directly! Use helper functions instead.
+    currentTasksCache: WorkoutTask[];
+
+    addTask: (task: WorkoutTask) => Promise<void>;
+    updateTask: (id: string, task: WorkoutTask) => Promise<void>;
+    removeTask: (id: string) => Promise<void>;
+    clearTasks: () => Promise<void>;
     findTask: (id: string) => WorkoutTask | undefined;
-    setTaskOrder: (order: string[]) => void;
+    reorderTasks: (tasks: WorkoutTask[]) => void;
 
-
-    storage: WorkoutStorage;
-    loadFromStorage: () => Promise<void>;
+    loadTasksFromStorage: () => Promise<void>; // will take WorkoutSet Id after that is implemented
 }
 
+const NotImplementedError = new Error("Not implemented");
+
 const initialState: WorkoutContextProps = {
-    tasks: [],
-    taskOrder: [],
-
-    addTask: () => {},
-    updateTask: () => {},
-    removeTask: () => {},
-    clearTasks: () => {},
-    findTask: () => undefined,
-    setTaskOrder: () => {},
-
     storage: new Storage<WorkoutStorageConfig>(),
-    loadFromStorage: () => new Promise<void>(() => {}),
+
+    currentTasksCache: [],
+
+    addTask: () => { throw NotImplementedError},
+    updateTask: () => { throw NotImplementedError },
+    removeTask: () => { throw NotImplementedError },
+    clearTasks: () => { throw NotImplementedError },
+    findTask: () => { throw NotImplementedError },
+    reorderTasks: () => { throw NotImplementedError },
+
+    loadTasksFromStorage: () => new Promise<void>(() => { throw NotImplementedError }),
 };
 
 export const WorkoutContext = createContext<WorkoutContextProps>(initialState);
@@ -44,88 +44,77 @@ export const WorkoutContext = createContext<WorkoutContextProps>(initialState);
 export function WorkoutContextProvider(props: {children: any}) {
     const [state, setState] = useState(initialState);
 
-    function addTask(task: WorkoutTask) {
-        if(state.tasks.find(t => t.id === task.id) === undefined) {
+    async function addTask(task: WorkoutTask) {
+        const result = await state.storage.create("WorkoutTask", task);
+        if(typeof result == "number") {
+            console.log(`Failed to create task ${task.id} in storage: ${StorageError[result]}`);
+        } else {
             setState({
                 ...state, 
-                tasks: [...state.tasks, task],
-                taskOrder: [...state.taskOrder, task.id],
+                currentTasksCache: [...state.currentTasksCache, task],
             });
-
-            state.storage.create("WorkoutTask", task)
-            .then((value) => {
-                if(typeof value === "number") {
-                    console.log(`Failed to create task ${task.id} in storage: ${StorageError[value]}`);
-                }
-            })
-            .catch(console.error);
         }
     }
-    function updateTask(id: string, task: WorkoutTask) {
-        const i = state.tasks.findIndex(task => task.id == id);
-        if(i != -1) {
+
+    async function updateTask(id: string, task: WorkoutTask) {
+        const result = await state.storage.update("WorkoutTask", id, task)
+        if(typeof result === "number") {
+            console.log(`Failed to update task ${task.id} in storage: ${StorageError[result]}`);
+        } else {
+            const i = state.currentTasksCache.findIndex(t => t.id === id);
+            if(i >= 0) {
+                setState({
+                    ...state,
+                    currentTasksCache: [...state.currentTasksCache.slice(0, i), task, ...state.currentTasksCache.slice(i + 1)],
+                });
+            }
+        }
+    }
+
+    async function removeTask(id: string) {
+        const result = await state.storage.delete("WorkoutTask", id)
+        if(typeof result === "number") {
+            console.log(`Failed to delete task ${id} in storage: ${StorageError[result]}`);
+        } else {
             setState({
                 ...state,
-                tasks: [...state.tasks.slice(0, i), task, ...state.tasks.slice(i + 1)],
+                currentTasksCache: state.currentTasksCache.filter(task => task.id !== id),
             });
-
-            state.storage.update("WorkoutTask", id, task)
-            .then((value) => {
-                if(typeof value === "number") {
-                    console.log(`Failed to update task ${task.id} in storage: ${StorageError[value]}`);
-                }
-            }).catch(console.error);
         }
     }
-    function removeTask(id: string) {
-        setState({
-            ...state,
-            tasks: state.tasks.filter(task => task.id !== id),
-            taskOrder: state.taskOrder.filter(id_ => id_ !== id),
-        });
 
-        state.storage.delete("WorkoutTask", id)
-        .then((value) => {
-            if(typeof value === "number") {
-                console.log(`Failed to delete task ${id} in storage: ${StorageError[value]}`);
-            }
-        }).catch(console.error);
+    async function clearTasks() { 
+        const result = await state.storage.deleteAll("WorkoutTask")
+        if(typeof result === "number") {
+            console.log(`Failed to delete all tasks in storage: ${StorageError[result]}`);
+        } else {
+            setState({
+                ...state,
+                currentTasksCache: [],
+            });
+        }
     }
-    function clearTasks() {
-        setState({
-            ...state,
-            tasks: [],
-            taskOrder: [],
-        });
 
-        state.storage.deleteAll("WorkoutTask")
-        .then((value) => {
-            if(typeof value === "number") {
-                console.log(`Failed to delete all tasks in storage: ${StorageError[value]}`);
-            }
-        }).catch(console.error);
-    }
     function findTask(uuid: string): WorkoutTask | undefined {
-        return state.tasks.find(task => task.id == uuid);
+        return state.currentTasksCache.find(task => task.id == uuid);
     }
 
-    function setTaskOrder(order: string[]) {
-        const validIds = order.filter(uuid => state.tasks.find(task => task.id == uuid) !== undefined);
+    function reorderTasks(tasks: WorkoutTask[]) {
+        tasks = tasks.filter(task => state.currentTasksCache.find(t => t.id == task.id) !== undefined);
         setState({
             ...state,
-            taskOrder: validIds,
+            currentTasksCache: tasks,
         });
     }
 
     async function loadFromStorage() : Promise<void> {
-        const tasks = await state.storage.getAll("WorkoutTask");
-        if(typeof tasks === "number") {
-            throw StorageError[tasks];
+        const result = await state.storage.getAll("WorkoutTask");
+        if(typeof result === "number") {
+            throw StorageError[result];
         } else {           
             setState({
                 ...state,
-                tasks: [...tasks],
-                taskOrder: [...tasks.map(task => task.id)],
+                currentTasksCache: [...result],
             });
         }
     }
@@ -138,8 +127,9 @@ export function WorkoutContextProvider(props: {children: any}) {
         removeTask: removeTask,
         clearTasks: clearTasks,
         findTask: findTask,
-        setTaskOrder: setTaskOrder,
-        loadFromStorage: loadFromStorage,
+        reorderTasks: reorderTasks,
+        
+        loadTasksFromStorage: loadFromStorage,
     };
 
     return <WorkoutContext.Provider value={value}>{props.children}</WorkoutContext.Provider>;
