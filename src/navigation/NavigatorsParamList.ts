@@ -1,8 +1,11 @@
+import { WorkoutSet } from "../types/WorkoutSet";
 import { WorkoutTask } from "../types/WorkoutTask";
 
 type NavigatorsParamList = {
     // Home: undefined;
-    WorkoutTaskList: undefined;
+    WorkoutTaskList: {
+        workoutSet: WorkoutSet,
+    };
     WorkoutTaskForm: {
         editedTask?: WorkoutTask;
     };
@@ -14,6 +17,8 @@ type NavigatorsParamList = {
         currentTaskIndex: number;
     }
     WorkoutPlaybackFinishView: undefined;
+    WorkoutSetListView: undefined;
+    WorkoutSetForm: undefined;
 }
 
 export default NavigatorsParamList;

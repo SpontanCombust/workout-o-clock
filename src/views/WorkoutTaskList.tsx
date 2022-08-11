@@ -18,8 +18,9 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
     const context = useContext(WorkoutContext);
 
     useEffect(() => {
-        // do on component mount
-        context.loadTasksFromStorage().catch(console.error);
+        //FIXME tasks don't appear in the list now
+        context.makeSetCurrent(route.params.workoutSet);
+        context.loadSetTasks(route.params.workoutSet);
     }, []);
 
 

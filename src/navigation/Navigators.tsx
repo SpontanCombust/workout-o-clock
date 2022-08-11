@@ -2,6 +2,8 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import WorkoutPlaybackFinishView from "../views/WorkoutPlaybackFinishView";
 
 import WorkoutPlaybackView from "../views/WorkoutPlaybackView";
+import { WorkoutSetForm } from "../views/WorkoutSetForm";
+import WorkoutSetListView from "../views/WorkoutSetListView";
 import WorkoutTaskForm from "../views/WorkoutTaskForm";
 import WorkoutTaskFormColorPicker from "../views/WorkoutTaskFormColorPicker";
 import WorkoutTaskList from "../views/WorkoutTaskList";
@@ -12,7 +14,7 @@ const RootStack = createNativeStackNavigator<NavigatorsParamList>();
 
 export default function Navigators() {
     return (
-        <RootStack.Navigator initialRouteName="WorkoutTaskList">
+        <RootStack.Navigator initialRouteName="WorkoutSetListView">
             <RootStack.Screen 
                 name="WorkoutTaskList" 
                 component={WorkoutTaskList} 
@@ -49,6 +51,20 @@ export default function Navigators() {
                 options={{
                     headerShown: false,
                     animation: "simple_push",
+                }}/>
+            <RootStack.Screen
+                name="WorkoutSetListView"
+                component={WorkoutSetListView}
+                options={{
+                    headerShown: false,
+                }}/>
+            <RootStack.Screen 
+                name="WorkoutSetForm" 
+                component={WorkoutSetForm} 
+                options={{
+                    headerShown: false,
+                    presentation: "transparentModal", 
+                    animation: "slide_from_bottom", 
                 }}/>
         </RootStack.Navigator>
     )

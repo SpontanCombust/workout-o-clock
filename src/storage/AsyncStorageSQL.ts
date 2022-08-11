@@ -100,7 +100,7 @@ export class Storage<StorageConfig> {
 
         return null;
     }
-    
+    //TODO multiple delete (array of ids as param)
     async delete<TableName extends keyof StorageConfig>(
         tableName: TableName, 
         id: string)
