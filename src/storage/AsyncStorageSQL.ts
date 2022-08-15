@@ -23,18 +23,18 @@ export class Storage<StorageConfig> {
     async create<TableName extends keyof StorageConfig>(
         tableName: TableName, 
         obj: StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never
-    ): Promise<StorageObject | StorageError> {
+    ): Promise<StorageObject> {
         const key = `${packageName}_${String(tableName)}_${obj.id}`;
 
         try {
             const value = await AsyncStorage.getItem(key);
             if (value !== null) {
-                return StorageError.RECORD_ALREADY_EXISTS;
+                throw StorageError.RECORD_ALREADY_EXISTS;
             }
 
             await AsyncStorage.setItem(key, JSON.stringify(obj));
         } catch(e) {
-            return StorageError.UNDERLYING_STORAGE_ERROR;
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
 
         return obj;
@@ -42,7 +42,7 @@ export class Storage<StorageConfig> {
 
     async getAll<TableName extends keyof StorageConfig>(
         tableName: TableName)
-    : Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never)[] | StorageError> {
+    : Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never)[]> {
         const keyPrefix = `${packageName}_${String(tableName)}_`;
 
         try {
@@ -54,25 +54,25 @@ export class Storage<StorageConfig> {
 
             return objs;
         } catch(e) {
-            return StorageError.UNDERLYING_STORAGE_ERROR;
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
     }
 
     async get<TableName extends keyof StorageConfig>(
         tableName: TableName, 
         id: string)
-    : Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never) | StorageError> {
+    : Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never)> {
         const key = `${packageName}_${String(tableName)}_${id}`;
 
         try {
             const value = await AsyncStorage.getItem(key);
             if (value === null) {
-                return StorageError.RECORD_NOT_FOUND;
+                throw StorageError.RECORD_NOT_FOUND;
             }
 
             return JSON.parse(value);
         } catch(e) {
-            return StorageError.UNDERLYING_STORAGE_ERROR;
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
     } 
 
@@ -80,66 +80,60 @@ export class Storage<StorageConfig> {
         tableName: TableName,
         id: string,
         obj: StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never
-    ): Promise<null | StorageError> {
+    ): Promise<void> {
         const key = `${packageName}_${String(tableName)}_${id}`;
 
         if(obj.id !== id) {
-            return StorageError.INVALID_INPUT;
+            throw StorageError.INVALID_INPUT;
         }
 
         try {
             const value = await AsyncStorage.getItem(key);
             if (value === null) {
-                return StorageError.RECORD_NOT_FOUND;
+                throw StorageError.RECORD_NOT_FOUND;
             }
 
             await AsyncStorage.setItem(key, JSON.stringify(obj));
         } catch(e) {
-            return StorageError.UNDERLYING_STORAGE_ERROR;
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
-
-        return null;
     }
     //TODO multiple delete (array of ids as param)
     async delete<TableName extends keyof StorageConfig>(
         tableName: TableName, 
         id: string)
-    : Promise<null | StorageError> {
+    : Promise<void> {
         const key = `${packageName}_${String(tableName)}_${id}`;
 
         try {
             const value = await AsyncStorage.getItem(key);
             if (value === null) {
-                return StorageError.RECORD_NOT_FOUND;
+                throw StorageError.RECORD_NOT_FOUND;
             }
 
             await AsyncStorage.removeItem(key);
         } catch(e) {
-            return StorageError.UNDERLYING_STORAGE_ERROR;
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
-
-        return null;
     }
 
     async deleteAll<TableName extends keyof StorageConfig>(
         tableName: TableName)
-    : Promise<null | StorageError> {
+    : Promise<void> {
         const keyPrefix = `${packageName}_${String(tableName)}_`;
 
         try {
             const keys = (await AsyncStorage.getAllKeys()).filter(key => key.startsWith(keyPrefix));
             await AsyncStorage.multiRemove(keys);
         } catch(e) {
-            return StorageError.UNDERLYING_STORAGE_ERROR;
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
-
-        return null;
     }
 
     async find<TableName extends keyof StorageConfig>(
         tableName: TableName, 
         query: (predicate: StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never) => boolean
-    ): Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never)[] | StorageError> {
+    ): Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never)[]> {
         const keyPrefix = `${packageName}_${String(tableName)}_`;
 
         try {
@@ -152,7 +146,7 @@ export class Storage<StorageConfig> {
 
             return objs;
         } catch(e) {
-            return StorageError.UNDERLYING_STORAGE_ERROR;
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
     }
 }

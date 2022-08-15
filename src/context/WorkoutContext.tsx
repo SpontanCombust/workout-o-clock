@@ -1,8 +1,8 @@
 import { createContext, useContext, useState } from "react";
+
 import { Storage, StorageError } from "../storage/AsyncStorageSQL";
 import { WorkoutStorage, WorkoutStorageConfig } from "../storage/WorkoutStorage";
 import { WorkoutSet } from "../types/WorkoutSet";
-
 import { WorkoutTask } from "../types/WorkoutTask";
 
 
@@ -30,7 +30,7 @@ export interface WorkoutContextProps {
     clearTasks(setId?: string): Promise<void>;
     // Find task in cache
     findTask(id: string): WorkoutTask | undefined;
-    reorderTasks(tasks: WorkoutTask[]): void;
+    reorderTasks(tasks: WorkoutTask[]): Promise<void>;
 }
 
 const NotImplementedError = new Error("Not implemented");
@@ -65,17 +65,16 @@ export function WorkoutContextProvider(props: {children: any}) {
 
 
     async function addSet(set: WorkoutSet) : Promise<void> {
-        const result = await state.storage.create("WorkoutSet", set);
-        if(typeof result == "number") {
-            console.log(`Failed to create set ${set.id} in storage: ${StorageError[result]}`);
+        try {
+            await state.storage.create("WorkoutSet", set);
+        } catch (error: any) {
+            console.error(`Failed to create set ${set.id} in storage: ${StorageError[error]}`);
         }
     }
 
     async function removeSet(set: WorkoutSet) : Promise<void> {
-        const result = await state.storage.delete("WorkoutSet", set.id);
-        if(typeof result == "number") {
-            console.log(`Failed to delete set ${set.id} in storage: ${StorageError[result]}`);
-        } else {
+        try {
+            await state.storage.delete("WorkoutSet", set.id);
             await clearTasks(set.id);
 
             setState({
@@ -83,6 +82,8 @@ export function WorkoutContextProvider(props: {children: any}) {
                 currentSet: null,
                 currentTasksCache: [],
             });
+        } catch (error: any) {
+            console.error(`Failed to delete set ${set.id} in storage: ${StorageError[error]}`);
         }
     }
 
@@ -95,51 +96,49 @@ export function WorkoutContextProvider(props: {children: any}) {
     }
 
     async function loadSetTasks(set: WorkoutSet) : Promise<void> {
-        const result = await state.storage.find("WorkoutTask", (task: WorkoutTask) => set.taskIds.includes(task.id));
-        if(typeof result === "number") {
-            console.log(`Failed to load tasks for set ${set.id} in storage: ${StorageError[result]}`);
-        } else {
+        try {
+            const tasks = await state.storage.find("WorkoutTask", (task: WorkoutTask) => set.taskIds.includes(task.id));
+
             setState({
                 ...state,
-                currentTasksCache: [...result],
+                currentTasksCache: [...tasks],
             });
+        } catch (error: any) {
+            console.error(`Failed to load tasks for set ${set.id} in storage: ${StorageError[error]}`);
         }
     }
 
 
     async function addTask(task: WorkoutTask) {
         if(state.currentSet !== null) {
-            const result = await state.storage.create("WorkoutTask", task);
-            if(typeof result == "number") {
-                console.log(`Failed to create task ${task.id} in storage: ${StorageError[result]}`);
-            } else {
+            try {
+                await state.storage.create("WorkoutTask", task);
+                
                 const updatedSet = {
                     ...state.currentSet,
                     taskIds: [...state.currentSet.taskIds, task.id],
                 };
                 
-                state.storage.update("WorkoutSet", state.currentSet.id, updatedSet)
-                .then((result) => {
-                    if(typeof result == "number") {
-                        console.log(`Failed to update set ${state.currentSet!.id} in storage: ${StorageError[result]}`);
-                    }
-                });
 
+                await state.storage.update("WorkoutSet", state.currentSet.id, updatedSet)
+                
                 setState({
                     ...state,
                     currentSet: updatedSet,
                     currentTasksCache: [...state.currentTasksCache, task],
                 });
+
+            } catch (error: any) {
+                console.error(`Failed to add task ${task.id} in storage: ${StorageError[error]}`);
             }
         }
     }
 
     async function updateTask(id: string, task: WorkoutTask) {
         if(state.currentSet !== null) {
-            const result = await state.storage.update("WorkoutTask", id, task)
-            if(typeof result === "number") {
-                console.log(`Failed to update task ${task.id} in storage: ${StorageError[result]}`);
-            } else {
+            try {
+                await state.storage.update("WorkoutTask", id, task)
+                
                 const i = state.currentTasksCache.findIndex(t => t.id === id);
                 if(i >= 0) {
                     setState({
@@ -147,43 +146,41 @@ export function WorkoutContextProvider(props: {children: any}) {
                         currentTasksCache: [...state.currentTasksCache.slice(0, i), task, ...state.currentTasksCache.slice(i + 1)],
                     });
                 }
+            } catch (error: any) {
+                console.error(`Failed to update task ${task.id} in storage: ${StorageError[error]}`);
             }
         }
     }
 
     async function removeTask(id: string) {
         if(state.currentSet !== null) {
-            const result = await state.storage.delete("WorkoutTask", id)
-            if(typeof result === "number") {
-                console.log(`Failed to delete task ${id} in storage: ${StorageError[result]}`);
-            } else {
+            try {
+                await state.storage.delete("WorkoutTask", id)
+                
                 const updatedSet = {
                     ...state.currentSet,
                     taskIds: state.currentSet.taskIds.filter(i => i !== id),
                 };
                 
-                state.storage.update("WorkoutSet", state.currentSet.id, updatedSet)
-                .then((result) => {
-                    if(typeof result == "number") {
-                        console.log(`Failed to update set ${state.currentSet!.id} in storage: ${StorageError[result]}`);
-                    }
-                });
-
+                await state.storage.update("WorkoutSet", state.currentSet.id, updatedSet)
+                
                 setState({
                     ...state,
                     currentSet: updatedSet,
                     currentTasksCache: state.currentTasksCache.filter(task => task.id !== id),
                 });
+
+            } catch (error: any) {
+                console.error(`Failed to delete task ${id} in storage: ${StorageError[error]}`);
             }
         }
     }
 
     async function clearTasks(setId?: string) {
-        if(setId !== undefined) {
-            const set = await state.storage.get("WorkoutSet", setId);
-            if(typeof set == "number") {
-                console.log(`Failed to get set ${setId} from storage: ${StorageError[set]}`);
-            } else {
+        try {
+            if(setId !== undefined) {
+                const set = await state.storage.get("WorkoutSet", setId);
+
                 set.taskIds.forEach(async (id) => {
                     const result = await state.storage.delete("WorkoutTask", id);
                     if(typeof result === "number") {
@@ -195,27 +192,28 @@ export function WorkoutContextProvider(props: {children: any}) {
                     ...set,
                     taskIds: [],
                 });
+
+            } else if(state.currentSet !== null) {
+                state.currentSet.taskIds.forEach(async (id) => {
+                    await state.storage.delete("WorkoutTask", id)
+                });
+    
+                const updatedSet = {
+                    ...state.currentSet,
+                    taskIds: [],
+                };
+                
+                await state.storage.update("WorkoutSet", state.currentSet.id, updatedSet);
+    
+                setState({
+                    ...state,
+                    currentSet: updatedSet,
+                    currentTasksCache: [],
+                });
             }
-        } else if(state.currentSet !== null) {
-            state.currentSet.taskIds.forEach(async (id) => {
-                const result = await state.storage.delete("WorkoutTask", id);
-                if(typeof result === "number") {
-                    console.log(`Failed to delete task ${id} in storage: ${StorageError[result]}`);
-                }
-            });
-
-            const updatedSet = {
-                ...state.currentSet,
-                taskIds: [],
-            };
             
-            await state.storage.update("WorkoutSet", state.currentSet.id, updatedSet);
-
-            setState({
-                ...state,
-                currentSet: updatedSet,
-                currentTasksCache: [],
-            });
+        } catch (error: any) {
+            console.error(`Failed to clear tasks in storage: ${StorageError[error]}`);
         }
     }
 
@@ -223,27 +221,26 @@ export function WorkoutContextProvider(props: {children: any}) {
         return state.currentTasksCache.find(task => task.id == uuid);
     }
 
-    function reorderTasks(tasks: WorkoutTask[]) {
+    async function reorderTasks(tasks: WorkoutTask[]) {
         if(state.currentSet !== null) {
-            tasks = tasks.filter(task => state.currentTasksCache.find(t => t.id == task.id) !== undefined);
-
-            const updatedSet = {
-                ...state.currentSet,
-                taskIds: tasks.map(task => task.id),
-            };
-
-            state.storage.update("WorkoutSet", state.currentSet.id, updatedSet)
-            .then((result) => {
-                if(typeof result == "number") {
-                    console.log(`Failed to update set ${state.currentSet!.id} in storage: ${StorageError[result]}`);
-                }
-            });
-
-            setState({
-                ...state,
-                currentSet: updatedSet,
-                currentTasksCache: tasks,
-            });
+            try {
+                tasks = tasks.filter(task => state.currentTasksCache.find(t => t.id == task.id) !== undefined);
+    
+                const updatedSet = {
+                    ...state.currentSet,
+                    taskIds: tasks.map(task => task.id),
+                };
+    
+                await state.storage.update("WorkoutSet", state.currentSet.id, updatedSet);
+    
+                setState({
+                    ...state,
+                    currentSet: updatedSet,
+                    currentTasksCache: tasks,
+                });
+            } catch (error: any) {
+                console.error(`Failed to reorder tasks in storage: ${StorageError[error]}`);
+            }
         }
     }
 

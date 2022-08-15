@@ -5,6 +5,7 @@ import { FlatList } from "react-native-gesture-handler";
 
 import { WorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
+import { StorageError } from "../storage/AsyncStorageSQL";
 import { WorkoutSet } from "../types/WorkoutSet";
 import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
@@ -21,13 +22,14 @@ export default function WorkoutSetListItem({workoutSetId, navigation}: Props) {
 
     useEffect(() => {
         async function fetchData() {
-            const set = await context.storage.get("WorkoutSet", workoutSetId);
-            if(typeof set !== "number") {
-                setWorkoutSet(set);
+            try {
+                const set = await context.storage.get("WorkoutSet", workoutSetId);
                 const tasks = await context.storage.find("WorkoutTask", (task) => set.taskIds.includes(task.id));
-                if(typeof tasks !== "number") {
-                    setWorkoutTasks(tasks);
-                }
+    
+                setWorkoutSet(set);
+                setWorkoutTasks(tasks);
+            } catch (error: any) {
+                console.error(StorageError[error]);
             }
         }
 

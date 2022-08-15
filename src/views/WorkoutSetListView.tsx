@@ -6,6 +6,7 @@ import { FlatList } from "react-native-gesture-handler";
 
 import { useWorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
+import { StorageError } from "../storage/AsyncStorageSQL";
 import WorkoutSetListFooter from "./WorkoutSetListFooter";
 import WorkoutSetListItem from "./WorkoutSetListItem";
 
@@ -20,11 +21,11 @@ export default function WorkoutSetListView({route, navigation} : NavProps) {
     const isFocused = useIsFocused();
     
     async function fetchSets() {
-        const result = await context.storage.getAll("WorkoutSet");
-        if(typeof result === "number") {
-            console.log("Error fetching sets: " + result);
-        } else {
-            setWorkoutSetIds(result.map(set => set.id));
+        try {
+            const sets = await context.storage.getAll("WorkoutSet");
+            setWorkoutSetIds(sets.map(set => set.id));
+        } catch (error: any) {
+            console.error(`Failed to fetch sets: ${StorageError[error]}`);
         }
     }
 

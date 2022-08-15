@@ -41,7 +41,7 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                 />
             </View>
             <View style={styles.bottomButtonsView}>
-                {focused && <>                   
+                {focused && context.currentTasksCache.length > 0 && <>                   
                     <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
                         navigation.navigate("WorkoutPlaybackView", {currentTaskIndex: 0});
                     }}>
