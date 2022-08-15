@@ -19,7 +19,7 @@ export default function WorkoutPlaybackViewCardTime(props: WorkoutPlaybackViewCa
         );
 
         return () => clearInterval(interval);
-    });
+    }, []);
 
     useEffect(() => {
         if(secondsLeft <= 0) {

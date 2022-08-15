@@ -3,25 +3,24 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useContext, useEffect } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
+
 import { WorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { WorkoutTask } from "../types/WorkoutTask";
-
 import WorkoutTaskListFooter from "./WorkoutTaskListFooter";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
 
 
 type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskList'>;
 
+//FIXME doesn't update when tasks get changed (i.e. added, shifted around, etc)
 export default function WorkoutTaskList({route, navigation} : NavProps) {
     const focused = useIsFocused();
     const context = useContext(WorkoutContext);
 
     useEffect(() => {
-        //FIXME tasks don't appear in the list now
-        context.makeSetCurrent(route.params.workoutSet);
         context.loadSetTasks(route.params.workoutSet);
-    }, []);
+    }, [context.currentSet])
 
 
     return (
@@ -33,12 +32,12 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                     keyExtractor={(item) => item.id}
                     renderItem={(params) =>
                         <WorkoutTaskListItem 
+                            navigation={navigation}
                             task={params.item}
-                            onPress={() => navigation.navigate("WorkoutTaskForm", {editedTask: params.item})}
-                            onLongPress={params.drag} 
-                            disabled={params.isActive} />
+                            disabled={params.isActive} 
+                            activateDrag={params.drag} />
                     }
-                    ListFooterComponent={<WorkoutTaskListFooter onPress={() => navigation.navigate("WorkoutTaskForm", {})}/>}
+                    ListFooterComponent={<WorkoutTaskListFooter navigation={navigation}/>}
                 />
             </View>
             <View style={styles.bottomButtonsView}>

@@ -1,12 +1,17 @@
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React from "react";
 import { Dimensions, StyleSheet, Text, TouchableOpacity } from "react-native";
+import NavigatorsParamList from "../navigation/NavigatorsParamList";
 
-export default function WorkoutSetListFooter(props: {
-    onPress: () => void;
-}) {
+
+type Props = {
+    navigation: NativeStackNavigationProp<NavigatorsParamList, "WorkoutSetListView">;
+}
+
+export default function WorkoutSetListFooter({navigation} : Props) {
     return (
         <TouchableOpacity
-            onPress={props.onPress}
+            onPress={() => navigation.navigate("WorkoutSetForm")}
             activeOpacity={0.8}
             style={styles.content}
         >

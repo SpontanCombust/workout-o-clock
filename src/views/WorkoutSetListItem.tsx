@@ -1,22 +1,38 @@
-import React from "react";
+import { NativeStackNavigationProp } from "@react-navigation/native-stack";
+import React, { useEffect } from "react";
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 
 import { WorkoutContext } from "../context/WorkoutContext";
+import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { WorkoutSet } from "../types/WorkoutSet";
 import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
 
 type Props = {
-    workoutSet: WorkoutSet;
-    onPress: () => void;
+    workoutSetId: string;
+    navigation: NativeStackNavigationProp<NavigatorsParamList, "WorkoutSetListView">;
 }
 
-export default function WorkoutSetListItem(props: Props) {
+export default function WorkoutSetListItem({workoutSetId, navigation}: Props) {
     const context = React.useContext(WorkoutContext);
-    const tasks = props.workoutSet.taskIds
-                    .map(id => context.findTask(id))
-                    .filter((task): task is WorkoutTask => task !== undefined);
+    const [workoutSet, setWorkoutSet] = React.useState<WorkoutSet | null>(null);
+    const [workoutTasks, setWorkoutTasks] = React.useState<WorkoutTask[]>([]);
+
+    useEffect(() => {
+        async function fetchData() {
+            const set = await context.storage.get("WorkoutSet", workoutSetId);
+            if(typeof set !== "number") {
+                setWorkoutSet(set);
+                const tasks = await context.storage.find("WorkoutTask", (task) => set.taskIds.includes(task.id));
+                if(typeof tasks !== "number") {
+                    setWorkoutTasks(tasks);
+                }
+            }
+        }
+
+        fetchData();
+    }, []);
 
     function TaskSummaryItem(props: {task: WorkoutTask}) {
         let completionCond: string;
@@ -34,11 +50,16 @@ export default function WorkoutSetListItem(props: Props) {
     }
 
     return (
-        <TouchableOpacity onPress={props.onPress}>
-            <View style={[styles.container, {backgroundColor: props.workoutSet.cardColor}]}>
-                <Text style={styles.title}>{props.workoutSet.title}</Text>
-                <FlatList
-                    data={tasks}
+        <TouchableOpacity onPress={() => {
+            if(workoutSet) {
+                context.makeSetCurrent(workoutSet);
+                navigation.navigate("WorkoutTaskList", {workoutSet: workoutSet});
+            }
+        }}>
+            <View style={[styles.container, {backgroundColor: workoutSet !== null ? workoutSet.cardColor : "white"}]}>
+                <Text style={styles.title}>{workoutSet !== null ? workoutSet.title : ""}</Text>
+                <FlatList<WorkoutTask>
+                    data={workoutTasks}
                     renderItem={({item}) => <TaskSummaryItem task={item} />}
                     scrollEnabled={false}
                 />

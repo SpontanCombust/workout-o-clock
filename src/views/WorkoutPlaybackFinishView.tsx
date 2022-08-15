@@ -11,7 +11,7 @@ export default function WorkoutPlaybackFinishView({navigation} : NavProps) {
     return (
         <View style={styles.content}>
             <Text style={styles.finishedText}>Workout finished!</Text>
-            <Button title="Go back" onPress={() => navigation.replace("WorkoutTaskList")}></Button>
+            <Button title="Go back" onPress={() => navigation.goBack()}></Button>
         </View>
     )
 }
