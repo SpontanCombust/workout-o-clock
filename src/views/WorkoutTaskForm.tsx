@@ -1,10 +1,10 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useContext, useEffect, useState } from "react";
-import { Button, Keyboard, LogBox, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Button, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 
-import { WorkoutContext, WorkoutContextProps } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
+import { useWorkoutStorage } from "../storage/WorkoutStorage";
 import { CompletionCondition, CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
 
@@ -24,7 +24,7 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
     const [reps, setReps] = useState(0);
     const [cardColor, setCardColor] = useState("springgreen");
 
-    const context = useContext(WorkoutContext);
+    const storage = useWorkoutStorage();
 
     useEffect(() => {
         if(route.params.editedTask !== undefined) {
@@ -83,7 +83,7 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
         }
     }
 
-    function saveWorkoutTask(context: WorkoutContextProps) {
+    async function saveWorkoutTask() {
         let completionCondition: CompletionCondition;
         if(completionCondDropdownValue == CompletionConditionType.TIME) {
             completionCondition = {
@@ -99,18 +99,24 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
         }
 
         if(route.params.editedTask !== undefined) {
-            context.updateTask(route.params.editedTask.id, {
+            return storage.update("WorkoutTask", route.params.editedTask.id, {
                 ...route.params.editedTask,
                 title: title,
                 completionCondition: completionCondition,
                 cardColor: cardColor,
             });
         } else {
-            context.addTask(new WorkoutTask(
+            const newTask = await storage.create("WorkoutTask", new WorkoutTask(
+                route.params.setId,
                 title,
                 completionCondition,
                 cardColor
             ));
+
+            const set = await storage.get("WorkoutSet", route.params.setId);
+            set.taskIds.push(newTask.id);
+            
+            return storage.update("WorkoutSet", route.params.setId, set);
         }
     }
 
@@ -169,8 +175,7 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 <View style={styles.bottomButtonsView}>
                     <Button title="Cancel" onPress={() => navigation.goBack()}/>
                     <Button title="Save" onPress={() => {
-                        saveWorkoutTask(context);
-                        navigation.goBack();
+                        saveWorkoutTask().then(() => navigation.goBack());
                     }}/>
                 </View>
             </View>

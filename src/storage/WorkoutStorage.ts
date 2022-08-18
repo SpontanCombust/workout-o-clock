@@ -8,4 +8,8 @@ export type WorkoutStorageConfig = {
     WorkoutSet: WorkoutSet,
 }
 
-export type WorkoutStorage = Storage<WorkoutStorageConfig>;
+const WorkoutStorageInstance = new Storage<WorkoutStorageConfig>();
+
+export function useWorkoutStorage() {
+    return WorkoutStorageInstance;
+}

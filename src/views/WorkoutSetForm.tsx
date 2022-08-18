@@ -1,23 +1,23 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react"
-import { Button, StyleSheet, Text, View } from "react-native"
-import { TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler"
+import React, { useState } from "react";
+import { Button, StyleSheet, Text, View } from "react-native";
+import { TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler";
 
-import { useWorkoutContext } from "../context/WorkoutContext"
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
+import { useWorkoutStorage } from "../storage/WorkoutStorage";
 import { WorkoutSet } from "../types/WorkoutSet";
 
 
 type NavProps = NativeStackScreenProps<NavigatorsParamList, "WorkoutSetForm">;
 
 export function WorkoutSetForm({route, navigation} : NavProps) {
+    const storage = useWorkoutStorage();
+
     const [title, setTitle] = useState("New workout set");
     const [cardColor, setCardColor] = useState("springgreen");
 
-    const context = useWorkoutContext();
-
-    function saveWorkoutSet() {
-        context.addSet(new WorkoutSet(title, cardColor));
+    async function saveWorkoutSet() {
+        return storage.create("WorkoutSet", new WorkoutSet(title, cardColor));
     }
 
     return (
@@ -33,8 +33,7 @@ export function WorkoutSetForm({route, navigation} : NavProps) {
                         navigation.goBack()
                     }}/>
                     <Button title="Save" onPress={() => {
-                        saveWorkoutSet();
-                        navigation.goBack();
+                        saveWorkoutSet().then(() => navigation.goBack());
                     }}/>
                 </View>
             </View>

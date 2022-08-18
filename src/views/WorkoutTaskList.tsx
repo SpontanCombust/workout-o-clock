@@ -1,11 +1,12 @@
-import { useIsFocused } from "@react-navigation/native";
+import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useContext, useEffect } from "react";
+import React, { useCallback, useRef, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
-import { WorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
+import { useWorkoutStorage } from "../storage/WorkoutStorage";
+import { WorkoutSet } from "../types/WorkoutSet";
 import { WorkoutTask } from "../types/WorkoutTask";
 import WorkoutTaskListFooter from "./WorkoutTaskListFooter";
 import WorkoutTaskListItem from "./WorkoutTaskListItem";
@@ -13,37 +14,84 @@ import WorkoutTaskListItem from "./WorkoutTaskListItem";
 
 type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskList'>;
 
-//FIXME doesn't update when tasks get changed (i.e. added, shifted around, etc)
 export default function WorkoutTaskList({route, navigation} : NavProps) {
-    const focused = useIsFocused();
-    const context = useContext(WorkoutContext);
+    const storage = useWorkoutStorage();
+    const isFormVisible = useRef(false);
+    const workoutSet = useRef<WorkoutSet>();
+    const [workoutTasks, setWorkoutTasks] = useState<WorkoutTask[]>([]);
 
-    useEffect(() => {
-        context.loadSetTasks(route.params.workoutSet);
-    }, [context.currentSet])
+    useFocusEffect(
+        useCallback(() => {
+            isFormVisible.current = false;
 
+            storage.get("WorkoutSet", route.params.workoutSetId)
+            .then(set => {
+                workoutSet.current = set;
+
+                navigation.setOptions({
+                    headerTitle: set.title,
+                });
+
+                storage.getMultiple("WorkoutTask", set.taskIds)
+                .then(tasks => setWorkoutTasks(tasks));
+            });
+        }, [])
+    );
+
+    function reorderTasks(tasks: WorkoutTask[]) {
+        if(workoutSet.current !== undefined) {
+            const updatedSet: WorkoutSet = {
+                ...workoutSet.current,
+                taskIds: tasks.map(task => task.id),
+            }
+    
+            storage.update("WorkoutSet", updatedSet.id, updatedSet);
+
+            setWorkoutTasks(tasks);
+        }
+    }
+
+    function deleteTask(taskId: string) {
+        const task = workoutTasks.find(t => t.id === taskId);
+        if(task !== undefined) {
+            storage.delete("WorkoutTask", taskId);
+                        
+            storage.get("WorkoutSet", task.setId)
+            .then(set => {
+                set.taskIds = set.taskIds.filter(id => id !== taskId);
+                storage.update("WorkoutSet", task.setId, set);
+            });
+
+            setWorkoutTasks(workoutTasks.filter(t => t.id !== taskId));
+        }
+    }
 
     return (
+        //TODO add spinner when tasks are not loaded yet
         <View style={styles.content}>
             <View style={styles.listView}>
                 <DraggableFlatList<WorkoutTask>
-                    data={context.currentTasksCache}
-                    onDragEnd={({data}) => context.reorderTasks(data)}
+                    data={workoutTasks}
+                    onDragEnd={({data}) => reorderTasks(data)}
                     keyExtractor={(item) => item.id}
                     renderItem={(params) =>
                         <WorkoutTaskListItem 
                             navigation={navigation}
                             task={params.item}
                             disabled={params.isActive} 
-                            activateDrag={params.drag} />
+                            activateDrag={params.drag} 
+                            onRequestDelete={() => deleteTask(params.item.id)}/>
                     }
-                    ListFooterComponent={<WorkoutTaskListFooter navigation={navigation}/>}
+                    ListFooterComponent={<WorkoutTaskListFooter onPressed={() => {
+                        isFormVisible.current = true;
+                        navigation.navigate("WorkoutTaskForm", {setId: route.params.workoutSetId});
+                    }}/>}
                 />
             </View>
             <View style={styles.bottomButtonsView}>
-                {focused && context.currentTasksCache.length > 0 && <>                   
+                {!isFormVisible.current && workoutTasks.length > 0 && <>                   
                     <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
-                        navigation.navigate("WorkoutPlaybackView", {currentTaskIndex: 0});
+                        navigation.navigate("WorkoutPlaybackView", {tasks: workoutTasks, currentTaskIndex: 0});
                     }}>
                         {/*TODO set content as svg arrow image*/}
                         <Text style={styles.addButtonText}>{">"}</Text>
@@ -63,7 +111,6 @@ const styles = StyleSheet.create({
     listView: {
         flex: 8,
         alignItems: "stretch",
-        marginTop: 50,
     },
     bottomButtonsView: {
         flex: 1,

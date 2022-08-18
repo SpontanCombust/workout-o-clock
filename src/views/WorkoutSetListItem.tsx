@@ -1,40 +1,29 @@
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { FlatList } from "react-native-gesture-handler";
 
-import { WorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
-import { StorageError } from "../storage/AsyncStorageSQL";
+import { useWorkoutStorage } from "../storage/WorkoutStorage";
 import { WorkoutSet } from "../types/WorkoutSet";
 import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 
 
 type Props = {
-    workoutSetId: string;
+    workoutSet: WorkoutSet;
     navigation: NativeStackNavigationProp<NavigatorsParamList, "WorkoutSetListView">;
 }
 
-export default function WorkoutSetListItem({workoutSetId, navigation}: Props) {
-    const context = React.useContext(WorkoutContext);
-    const [workoutSet, setWorkoutSet] = React.useState<WorkoutSet | null>(null);
-    const [workoutTasks, setWorkoutTasks] = React.useState<WorkoutTask[]>([]);
+export default function WorkoutSetListItem({workoutSet, navigation}: Props) {
+    const storage = useWorkoutStorage();
+    const [workoutTasks, setWorkoutTasks] = useState<WorkoutTask[]>([]);
+
 
     useEffect(() => {
-        async function fetchData() {
-            try {
-                const set = await context.storage.get("WorkoutSet", workoutSetId);
-                const tasks = await context.storage.find("WorkoutTask", (task) => set.taskIds.includes(task.id));
-    
-                setWorkoutSet(set);
-                setWorkoutTasks(tasks);
-            } catch (error: any) {
-                console.error(StorageError[error]);
-            }
-        }
+        storage.getMultiple("WorkoutTask", workoutSet.taskIds)
+        .then(data => setWorkoutTasks(data));
+    }, [workoutSet]);
 
-        fetchData();
-    }, []);
 
     function TaskSummaryItem(props: {task: WorkoutTask}) {
         let completionCond: string;
@@ -53,13 +42,10 @@ export default function WorkoutSetListItem({workoutSetId, navigation}: Props) {
 
     return (
         <TouchableOpacity onPress={() => {
-            if(workoutSet) {
-                context.makeSetCurrent(workoutSet);
-                navigation.navigate("WorkoutTaskList", {workoutSet: workoutSet});
-            }
+            navigation.navigate("WorkoutTaskList", {workoutSetId: workoutSet.id});
         }}>
-            <View style={[styles.container, {backgroundColor: workoutSet !== null ? workoutSet.cardColor : "white"}]}>
-                <Text style={styles.title}>{workoutSet !== null ? workoutSet.title : ""}</Text>
+            <View style={[styles.container, {backgroundColor: workoutSet !== undefined ? workoutSet.cardColor : "white"}]}>
+                <Text style={styles.title}>{workoutSet !== undefined ? workoutSet.title : ""}</Text>
                 <FlatList<WorkoutTask>
                     data={workoutTasks}
                     renderItem={({item}) => <TaskSummaryItem task={item} />}

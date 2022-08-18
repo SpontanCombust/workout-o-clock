@@ -1,7 +1,6 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useContext } from "react";
+import React from "react";
 
-import { WorkoutContext } from "../context/WorkoutContext";
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 import WorkoutPlaybackViewCardReps from "./WorkoutPlaybackViewCardReps";
@@ -16,16 +15,16 @@ export type WorkoutPlaybackViewCardProps = {
 type NavProps = NativeStackScreenProps<NavigatorsParamList, "WorkoutPlaybackView">;
 
 export default function WorkoutPlaybackView({navigation, route}: NavProps) {
-    const context = useContext(WorkoutContext);
-    const currentTask = context.currentTasksCache[route.params.currentTaskIndex];
+    const currentTask = route.params.tasks[route.params.currentTaskIndex];
     
     if(currentTask !== undefined) {
         const cardProps: WorkoutPlaybackViewCardProps = {
             task: currentTask,
             onTaskFinished: () => {
-                if(route.params.currentTaskIndex + 1 < context.currentTasksCache.length) {
+                if(route.params.currentTaskIndex + 1 < route.params.tasks.length) {
                     navigation.replace("WorkoutPlaybackView", {
-                        currentTaskIndex: route.params.currentTaskIndex + 1
+                        tasks: route.params.tasks,
+                        currentTaskIndex: route.params.currentTaskIndex + 1,
                     });
                 } else {
                     navigation.replace("WorkoutPlaybackFinishView");

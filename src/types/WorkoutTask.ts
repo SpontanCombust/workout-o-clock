@@ -19,12 +19,14 @@ export interface CompletionConditionReps {
 export type CompletionCondition = CompletionConditionTime | CompletionConditionReps;
 
 export class WorkoutTask extends StorageObject {
+    setId: string;
     title: string;
     completionCondition: CompletionCondition;
     cardColor: string;
 
-    constructor(title: string, completionCondition: CompletionCondition, cardColor: string) {
+    constructor(setId: string, title: string, completionCondition: CompletionCondition, cardColor: string) {
         super();
+        this.setId = setId;
         this.title = title;
         this.completionCondition = completionCondition;
         this.cardColor = cardColor;

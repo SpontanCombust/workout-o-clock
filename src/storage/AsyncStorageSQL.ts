@@ -74,7 +74,26 @@ export class Storage<StorageConfig> {
         } catch(e) {
             throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
-    } 
+    }
+
+    async getMultiple<TableName extends keyof StorageConfig>(
+        tableName: TableName,
+        ids: string[]
+    ): Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never)[]> {
+        const keyPrefix = `${packageName}_${String(tableName)}_`;
+
+        try {
+            const keys = ids.map(id => `${keyPrefix}${id}`);
+            const objs = (await AsyncStorage.multiGet(keys))
+                            .map(v => v[1])
+                            .filter((v): v is string => v !== null)
+                            .map(v => JSON.parse(v));
+
+            return objs;
+        } catch(e) {
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
+        }
+    }
 
     async update<TableName extends keyof StorageConfig>(
         tableName: TableName,
@@ -98,7 +117,7 @@ export class Storage<StorageConfig> {
             throw StorageError.UNDERLYING_STORAGE_ERROR;
         }
     }
-    //TODO multiple delete (array of ids as param)
+
     async delete<TableName extends keyof StorageConfig>(
         tableName: TableName, 
         id: string)
@@ -112,6 +131,19 @@ export class Storage<StorageConfig> {
             }
 
             await AsyncStorage.removeItem(key);
+        } catch(e) {
+            throw StorageError.UNDERLYING_STORAGE_ERROR;
+        }
+    }
+
+    async deleteMultiple<TableName extends keyof StorageConfig>(
+        tableName: TableName,
+        ids: string[]
+    ): Promise<void> {
+        const keys = ids.map(id => `${packageName}_${String(tableName)}_${id}`);
+
+        try {
+            await AsyncStorage.multiRemove(keys);
         } catch(e) {
             throw StorageError.UNDERLYING_STORAGE_ERROR;
         }

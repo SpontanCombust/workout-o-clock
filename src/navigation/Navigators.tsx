@@ -19,7 +19,7 @@ export default function Navigators() {
                 name="WorkoutTaskList" 
                 component={WorkoutTaskList} 
                 options={{
-                    headerShown: false
+                    headerShown: true
                 }} />
             <RootStack.Screen 
                 name="WorkoutTaskForm" 
