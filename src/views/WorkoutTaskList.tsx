@@ -75,7 +75,6 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
     }
 
     return (
-        //TODO add spinner when tasks are not loaded yet
         <View style={styles.content}>
             <View style={styles.listView}>
                 {tasksAreLoading

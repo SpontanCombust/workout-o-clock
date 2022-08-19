@@ -1,7 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
-import React, { useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useState } from "react";
+import { Button, Keyboard, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import FormView from "../components/FormView";
 
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { useWorkoutStorage } from "../storage/WorkoutStorage";
@@ -16,43 +17,49 @@ export function WorkoutSetForm({route, navigation} : NavProps) {
     const [title, setTitle] = useState("New workout set");
     const [cardColor, setCardColor] = useState("springgreen");
 
+    useEffect(() => {
+        if(route.params.editedSet !== undefined) {
+            setTitle(route.params.editedSet.title);
+            setCardColor(route.params.editedSet.cardColor);
+        }
+    }, []);
+
+
     async function saveWorkoutSet() {
-        return storage.create("WorkoutSet", new WorkoutSet(title, cardColor));
+        if(route.params.editedSet !== undefined) {
+            return storage.update("WorkoutSet", route.params.editedSet.id, {
+                ...route.params.editedSet,
+                title: title,
+                cardColor: cardColor
+            });
+        } else {
+            return storage.create("WorkoutSet", new WorkoutSet(title, cardColor));
+        }
     }
 
     return (
-        <TouchableWithoutFeedback>
-            <View style={styles.content}>
-                <Text>New workout set</Text>
-
-                <Text>Title</Text>
-                <TextInput value={title} onChangeText={setTitle}/>
-
-                <View style={{flexDirection: "row", justifyContent: "space-around"}}>
-                    <Button title="Cancel" onPress={() => {
-                        navigation.goBack()
-                    }}/>
-                    <Button title="Save" onPress={() => {
-                        saveWorkoutSet().then(() => navigation.goBack());
-                    }}/>
-                </View>
-            </View>
-        </TouchableWithoutFeedback>
+        <FormView
+        headerText={route.params.editedSet !== undefined ? "Editing workout set" : "New workout set"}
+        onRequestCancel={() => navigation.goBack()}
+        onRequestSave={() => saveWorkoutSet().then(() => navigation.goBack())}>
+            <Text style={styles.inputHeader}>Title</Text>
+            <TextInput value={title} onChangeText={(text: string) => setTitle(text)} style={styles.textInput}/>
+        </FormView>
     )
 } 
 
 const styles = StyleSheet.create({
-    content: {
-        flexDirection: "column",
-        alignContent: "center",
+    inputHeader: {
+        fontWeight: "200",
+        fontSize: 15,
+    },
+    textInput: {
+        paddingLeft: 10,
 
-        paddingTop: '4%',
-        paddingBottom: '8%',
-        paddingHorizontal: '8%',
-        marginTop: '20%',
-        marginHorizontal: '3%',
+        height: 50,
 
-        borderRadius: 20,
-        backgroundColor: "white",
+        borderColor: "gray",
+        borderWidth: 1,
+        borderRadius: 5,
     },
 });

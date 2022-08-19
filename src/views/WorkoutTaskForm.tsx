@@ -1,7 +1,8 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { Button, Keyboard, StyleSheet, Text, TextInput, TouchableOpacity, TouchableWithoutFeedback, View } from "react-native";
+import { Keyboard, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
+import FormView from "../components/FormView";
 
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { useWorkoutStorage } from "../storage/WorkoutStorage";
@@ -124,109 +125,55 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
 
 
     return (
-        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <View style={styles.content}>
-                <View style={styles.cancelXButtonView}>
-                    <TouchableOpacity style={styles.cancelXButton} onPress={() => navigation.goBack()}>
-                        <Text style={styles.cancelXButtonText}>X</Text>
-                    </TouchableOpacity>
-                </View>
+        <FormView
+        headerText={route.params.editedTask !== undefined ? "Editing workout task" : "New workout task"}
+        onRequestCancel={() => navigation.goBack()}
+        onRequestSave={() => saveWorkoutTask().then(() => navigation.goBack())}>
+            <Text style={styles.inputHeader}>Title</Text>
+            <TextInput 
+                value={title}
+                onChangeText={(text: string) => setTitle(text)} 
+                style={styles.titleTextInput}/>
 
-                <Text style={styles.header}>New workout task</Text>
+            <View style={styles.completionCondView}>
+                <Text style={styles.inputHeader}>Completion condition</Text>
+                <View style={{flexDirection: "row"}}>
+                    <View style={{width: '35%'}}>
+                        <DropDownPicker
+                            open={completionCondDropdown}
+                            setOpen={setCompletionCondDropdownOpen}
+                            items={completionCondDropdownItems}
+                            setItems={setCompletionCondDropdownItems}
+                            value={completionCondDropdownValue}
+                            setValue={setCompletionCondDropdownValue}
+                            
+                            style={styles.completionConditionDropdown}
+                        />
+                    </View>
 
-                <Text>Title</Text>
-                <TextInput 
-                    value={title}
-                    onChangeText={(text: string) => setTitle(text)} 
-                    style={styles.titleTextInput}/>
-
-                <View style={styles.completionCondView}>
-                    <Text>Completion condition</Text>
-                    <View style={{flexDirection: "row"}}>
-                        <View style={{width: '35%'}}>
-                            <DropDownPicker
-                                open={completionCondDropdown}
-                                setOpen={setCompletionCondDropdownOpen}
-                                items={completionCondDropdownItems}
-                                setItems={setCompletionCondDropdownItems}
-                                value={completionCondDropdownValue}
-                                setValue={setCompletionCondDropdownValue}
-                                
-                                style={styles.completionConditionDropdown}
-                            />
-                        </View>
-
-                        <View style={styles.completionConditionInputView}>
-                            {CompletionCondInput()}
-                        </View>
+                    <View style={styles.completionConditionInputView}>
+                        {CompletionCondInput()}
                     </View>
                 </View>
-
-                <View style={{flexDirection: "row", marginTop: 50}}>
-                    <TouchableWithoutFeedback onPress={() => {
-                        Keyboard.dismiss();
-                        navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: cardColor, setColor: setCardColor});
-                    }}>
-                        <View style={[styles.colorPickerButton, {backgroundColor: cardColor}]}></View>
-                    </TouchableWithoutFeedback>
-                    <Text style={{marginTop: 5}}>Select card color</Text>
-                </View>
-                
-                <View style={styles.bottomButtonsView}>
-                    <Button title="Cancel" onPress={() => navigation.goBack()}/>
-                    <Button title="Save" onPress={() => {
-                        saveWorkoutTask().then(() => navigation.goBack());
-                    }}/>
-                </View>
             </View>
-        </TouchableWithoutFeedback>
+
+            <View style={{flexDirection: "row", marginTop: 50}}>
+                <TouchableWithoutFeedback onPress={() => {
+                    Keyboard.dismiss();
+                    navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: cardColor, setColor: setCardColor});
+                }}>
+                    <View style={[styles.colorPickerButton, {backgroundColor: cardColor}]}></View>
+                </TouchableWithoutFeedback>
+                <Text style={[styles.inputHeader, {marginTop: 5}]}>Select card color</Text>
+            </View>
+        </FormView>
     )
 }
 
 const styles = StyleSheet.create({
-    content: {
-        flexDirection: "column",
-        alignContent: "center",
-
-        paddingTop: '4%',
-        paddingBottom: '8%',
-        paddingHorizontal: '8%',
-        marginTop: '20%',
-        marginHorizontal: '3%',
-
-        borderRadius: 20,
-        backgroundColor: "white",
-    },
-    cancelXButtonView: {
-        flexDirection: "row-reverse", 
-
-        marginLeft: -20, 
-        marginTop: -5,
-    },
-    cancelXButton: {
-        alignItems: "center",
-        justifyContent: "center",
-
-        marginBottom: 10,
-
-        width: 40,
-        height: 40,
-        borderRadius: 50,
-
-        backgroundColor: 'red',
-    },
-    cancelXButtonText: {
-        fontSize: 20,
-        color: "white",
-        fontWeight: "bold",
-    },
-    header: {
-        marginBottom: 30,
-
-        fontSize: 24,
-        color: "gray",
-
-        textAlign: "center",
+    inputHeader: {
+        fontWeight: "200",
+        fontSize: 15,
     },
     titleTextInput: {
         paddingLeft: 10,
@@ -278,12 +225,5 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: "black",
         marginRight: 10,
-    },
-    bottomButtonsView: {
-        flexDirection: "row",
-        justifyContent: "space-evenly",
-
-        width: "100%",
-        marginTop: 70,
     },
 })
