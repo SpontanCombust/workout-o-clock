@@ -6,7 +6,7 @@ export interface ColorPickerContextProps {
 }
 
 const initialState: ColorPickerContextProps = {
-    color: 'white',
+    color: 'springgreen',
     setColor: () => {},
 } 
 

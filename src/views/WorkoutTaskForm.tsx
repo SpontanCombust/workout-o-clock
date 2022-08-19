@@ -40,6 +40,8 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 setReps(route.params.editedTask.completionCondition.reps);
             }
             colorPickerContext.setColor(route.params.editedTask.cardColor);
+        } else {
+            colorPickerContext.setColor("springgreen");
         }
     }, [])
     
