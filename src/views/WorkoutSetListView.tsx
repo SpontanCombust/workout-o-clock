@@ -26,6 +26,22 @@ export default function WorkoutSetListView({route, navigation} : NavProps) {
         }, [])
     );
 
+    function deleteSet(setId: string) {
+        const set = workoutSets.find(set => set.id == setId);
+        if(set !== undefined) {
+            //TODO more error checking everywhere else
+            storage.delete("WorkoutSet", setId)
+            .catch((msg) => console.error("Failed to delete workout set: " +  msg));
+
+            storage.deleteMultiple("WorkoutTask", set.taskIds)
+            .catch((msg) => console.error("Failed to delete tasks beloning to workout set: " +  msg));
+
+            setWorkoutSets(
+                workoutSets.filter(s => s.id !== setId)
+            );
+        }
+    }
+
     return (
         <View style={styles.content}>
             <FlatList<WorkoutSet>
@@ -41,7 +57,8 @@ export default function WorkoutSetListView({route, navigation} : NavProps) {
                 renderItem={({ item }) => 
                     <WorkoutSetListItem 
                         workoutSet={item} 
-                        navigation={navigation}/>
+                        navigation={navigation}
+                        onDeleteSet={() => deleteSet(item.id)}/>
                 }
                 ListFooterComponent={<WorkoutSetListFooter navigation={navigation}/>}
                 style={styles.flatlist}

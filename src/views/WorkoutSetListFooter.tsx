@@ -11,7 +11,7 @@ type Props = {
 export default function WorkoutSetListFooter({navigation} : Props) {
     return (
         <TouchableOpacity
-            onPress={() => navigation.navigate("WorkoutSetForm")}
+            onPress={() => navigation.navigate("WorkoutSetForm", {})}
             activeOpacity={0.8}
             style={styles.content}
         >

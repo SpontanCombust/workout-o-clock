@@ -1,3 +1,4 @@
+import { WorkoutSet } from "../types/WorkoutSet";
 import { WorkoutTask } from "../types/WorkoutTask";
 
 type NavigatorsParamList = {
@@ -19,7 +20,9 @@ type NavigatorsParamList = {
     }
     WorkoutPlaybackFinishView: undefined;
     WorkoutSetListView: undefined;
-    WorkoutSetForm: undefined;
+    WorkoutSetForm: {
+        editedSet?: WorkoutSet;
+    };
 }
 
 export default NavigatorsParamList;

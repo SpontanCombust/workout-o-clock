@@ -1,7 +1,7 @@
+import { Feather } from "@expo/vector-icons";
 import { NativeStackNavigationProp } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { Dimensions, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import { FlatList } from "react-native-gesture-handler";
+import { Alert, Dimensions, FlatList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { useWorkoutStorage } from "../storage/WorkoutStorage";
@@ -12,9 +12,10 @@ import { CompletionConditionType, WorkoutTask } from "../types/WorkoutTask";
 type Props = {
     workoutSet: WorkoutSet;
     navigation: NativeStackNavigationProp<NavigatorsParamList, "WorkoutSetListView">;
+    onDeleteSet: () => void;
 }
 
-export default function WorkoutSetListItem({workoutSet, navigation}: Props) {
+export default function WorkoutSetListItem({workoutSet, navigation, onDeleteSet}: Props) {
     const storage = useWorkoutStorage();
     const [workoutTasks, setWorkoutTasks] = useState<WorkoutTask[]>([]);
 
@@ -40,17 +41,50 @@ export default function WorkoutSetListItem({workoutSet, navigation}: Props) {
         )
     }
 
+    function onRequestEditSet() {
+        navigation.navigate("WorkoutSetForm", {editedSet: workoutSet})
+    }
+
+    function onRequestDeleteSet() {
+        Alert.alert(
+            "Workout set deletion",
+            `Are you sure you want to delete workout set "${workoutSet.title}"?`,
+            [
+                {
+                    text: "Yes",
+                    onPress: onDeleteSet,
+                    style: "default",
+                },
+                {
+                    text: "No",
+                    style: "cancel",
+                }
+            ]
+        );
+    }
+
     return (
         <TouchableOpacity onPress={() => {
             navigation.navigate("WorkoutTaskList", {workoutSetId: workoutSet.id});
         }}>
             <View style={[styles.container, {backgroundColor: workoutSet.cardColor}]}>
-                <Text style={styles.title}>{workoutSet.title}</Text>
-                <FlatList<WorkoutTask>
-                    data={workoutTasks}
-                    renderItem={({item}) => <TaskSummaryItem task={item} />}
-                    scrollEnabled={false}
-                />
+                <View style={styles.setOverviewView}>
+                    <Text style={styles.title}>{workoutSet.title}</Text>
+                    <FlatList<WorkoutTask>
+                        data={workoutTasks}
+                        renderItem={({item}) => <TaskSummaryItem task={item} />}
+                        scrollEnabled={false}
+                    />
+                </View>
+                <View style={styles.setEditionView}>
+                    <TouchableOpacity activeOpacity={0.70} onPress={onRequestEditSet}>
+                        <Feather name="edit" size={45} color="white"/>
+                    </TouchableOpacity>
+                    <View style={{width: 15}}/>
+                    <TouchableOpacity activeOpacity={0.70} onPress={onRequestDeleteSet}>
+                        <Feather name="trash" size={45} color="white" />
+                    </TouchableOpacity>
+                </View>
             </View>
         </TouchableOpacity>
     )
@@ -62,6 +96,7 @@ const winSize = Dimensions.get("window");
 const styles = StyleSheet.create({
     container: {
         flex: 1,
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
 
@@ -81,5 +116,18 @@ const styles = StyleSheet.create({
     },
     taskSummaryItemText: {
 
-    }
+    },
+    setOverviewView: {
+        flex: 9,
+        alignItems: "center",
+    },
+    setEditionView: {
+        flex: 1,
+        flexDirection: "row",
+        justifyContent: "flex-end",
+        alignItems: "flex-end",
+        
+        width: "90%",
+        marginBottom: 20,
+    },
 });
