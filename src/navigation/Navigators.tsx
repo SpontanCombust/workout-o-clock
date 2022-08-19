@@ -5,9 +5,10 @@ import WorkoutPlaybackView from "../views/WorkoutPlaybackView";
 import { WorkoutSetForm } from "../views/WorkoutSetForm";
 import WorkoutSetListView from "../views/WorkoutSetListView";
 import WorkoutTaskForm from "../views/WorkoutTaskForm";
-import WorkoutTaskFormColorPicker from "../views/WorkoutTaskFormColorPicker";
+import ColorPickerScreen from "../views/ColorPickerScreen";
 import WorkoutTaskList from "../views/WorkoutTaskList";
 import NavigatorsParamList from "./NavigatorsParamList";
+import { ColorPickerContextProvider } from "../context/ColorPickerContext";
 
 
 const RootStack = createNativeStackNavigator<NavigatorsParamList>();
@@ -21,6 +22,7 @@ export default function Navigators() {
                 options={{
                     headerShown: true
                 }} />
+
             <RootStack.Screen 
                 name="WorkoutTaskForm" 
                 component={WorkoutTaskForm} 
@@ -29,14 +31,16 @@ export default function Navigators() {
                     presentation: "transparentModal", 
                     animation: "slide_from_bottom", 
                 }}/>
+
             <RootStack.Screen
-                name="WorkoutTaskFormColorPicker"
-                component={WorkoutTaskFormColorPicker}
+                name="ColorPickerScreen"
+                component={ColorPickerScreen}
                 options={{
                     headerShown: true,
                     headerTitle: "Choose card color",
                     presentation: "transparentModal", 
                 }}/>
+
             <RootStack.Screen
                 name="WorkoutPlaybackView"
                 component={WorkoutPlaybackView}
@@ -45,6 +49,7 @@ export default function Navigators() {
                     headerShown: false,
                     animation: "slide_from_right",
                 }}/>
+
             <RootStack.Screen
                 name="WorkoutPlaybackFinishView"
                 component={WorkoutPlaybackFinishView}
@@ -52,12 +57,14 @@ export default function Navigators() {
                     headerShown: false,
                     animation: "simple_push",
                 }}/>
+
             <RootStack.Screen
                 name="WorkoutSetListView"
                 component={WorkoutSetListView}
                 options={{
                     headerShown: false,
                 }}/>
+
             <RootStack.Screen 
                 name="WorkoutSetForm" 
                 component={WorkoutSetForm} 

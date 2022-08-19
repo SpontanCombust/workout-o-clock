@@ -2,19 +2,22 @@ import { NativeStackScreenProps } from "@react-navigation/native-stack/lib/types
 import React from "react";
 import { StyleSheet, View } from "react-native";
 import { TriangleColorPicker } from "react-native-color-picker";
+import { useColorPickerContext } from "../context/ColorPickerContext";
 
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 
 
-type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskFormColorPicker'>;
+type NavProps = NativeStackScreenProps<NavigatorsParamList, 'ColorPickerScreen'>;
 
-export default function WorkoutTaskFormColorPicker({navigation, route}: NavProps) {
+export default function ColorPickerScreen({navigation, route}: NavProps) {
+    const context = useColorPickerContext();
+
     return (
         <View style={styles.colorPickerModalView}>
             <TriangleColorPicker
-                oldColor={route.params.oldColor}
+                oldColor={context.color}
                 onColorSelected={(c: string) => {
-                    route.params.setColor(c);
+                    context.setColor(c);
                     navigation.goBack();
                 }}
                 style={{flex: 1}}

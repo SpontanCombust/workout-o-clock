@@ -4,16 +4,13 @@ import { WorkoutTask } from "../types/WorkoutTask";
 type NavigatorsParamList = {
     // Home: undefined;
     WorkoutTaskList: {
-        workoutSetId: string,
+        workoutSetId: string;
     };
     WorkoutTaskForm: {
-        setId: string,
+        setId: string;
         editedTask?: WorkoutTask;
     };
-    WorkoutTaskFormColorPicker: {
-        oldColor: string,
-        setColor: (s: string) => void,
-    };
+    ColorPickerScreen: undefined;
     WorkoutPlaybackView: {
         tasks: WorkoutTask[];
         currentTaskIndex: number;

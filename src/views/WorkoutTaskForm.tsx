@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Keyboard, StyleSheet, Text, TextInput, TouchableWithoutFeedback, View } from "react-native";
 import DropDownPicker from "react-native-dropdown-picker";
 import FormView from "../components/FormView";
+import { useColorPickerContext } from "../context/ColorPickerContext";
 
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { useWorkoutStorage } from "../storage/WorkoutStorage";
@@ -23,8 +24,8 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
     const [timeMinutes, setTimeMinutes] = useState(0);
     const [timeSeconds, setTimeSeconds] = useState(0);
     const [reps, setReps] = useState(0);
-    const [cardColor, setCardColor] = useState("springgreen");
 
+    const colorPickerContext = useColorPickerContext();
     const storage = useWorkoutStorage();
 
     useEffect(() => {
@@ -38,7 +39,7 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 setCompletionCondDropdownValue(CompletionConditionType.REPS);
                 setReps(route.params.editedTask.completionCondition.reps);
             }
-            setCardColor(route.params.editedTask.cardColor);
+            colorPickerContext.setColor(route.params.editedTask.cardColor);
         }
     }, [])
     
@@ -104,14 +105,14 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 ...route.params.editedTask,
                 title: title,
                 completionCondition: completionCondition,
-                cardColor: cardColor,
+                cardColor: colorPickerContext.color,
             });
         } else {
             const newTask = await storage.create("WorkoutTask", new WorkoutTask(
                 route.params.setId,
                 title,
                 completionCondition,
-                cardColor
+                colorPickerContext.color
             ));
 
             const set = await storage.get("WorkoutSet", route.params.setId);
@@ -120,9 +121,6 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
             return storage.update("WorkoutSet", route.params.setId, set);
         }
     }
-
-
-
 
     return (
         <FormView
@@ -157,12 +155,12 @@ export default function WorkoutTaskForm({navigation, route}: NavProps) {
                 </View>
             </View>
 
-            <View style={{flexDirection: "row", marginTop: 50}}>
+            <View style={styles.colorPickerView}>
                 <TouchableWithoutFeedback onPress={() => {
                     Keyboard.dismiss();
-                    navigation.navigate('WorkoutTaskFormColorPicker', {oldColor: cardColor, setColor: setCardColor});
+                    navigation.navigate("ColorPickerScreen");
                 }}>
-                    <View style={[styles.colorPickerButton, {backgroundColor: cardColor}]}></View>
+                    <View style={[styles.colorPickerButton, {backgroundColor: colorPickerContext.color}]}></View>
                 </TouchableWithoutFeedback>
                 <Text style={[styles.inputHeader, {marginTop: 5}]}>Select card color</Text>
             </View>
@@ -218,6 +216,10 @@ const styles = StyleSheet.create({
         fontSize: 40,
         textAlign: "center",
         fontWeight: "200",
+    },
+    colorPickerView: {
+        flexDirection: "row", 
+        marginTop: 50,
     },
     colorPickerButton: {
         width: 30,
