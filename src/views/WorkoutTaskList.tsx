@@ -24,6 +24,7 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
     const workoutSet = useRef<WorkoutSet>();
     const [workoutTasks, setWorkoutTasks] = useState<WorkoutTask[]>([]);
 
+    //FIXME avoid full reloads when editing tasks
     useFocusEffect(
         useCallback(() => {
             setTasksLoading(true);
@@ -75,7 +76,7 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
     }
 
     return (
-        <View style={styles.content}>
+        <View style={[styles.content, {backgroundColor: workoutSet.current?.cardColor}]}>
             <View style={styles.listView}>
                 {tasksAreLoading
                 ? <ActivityIndicator size={"large"} color="white" style={{marginTop: 30}}/>
@@ -98,7 +99,7 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                 />
                 }
             </View>
-            <View style={styles.bottomButtonsView}>
+            <View style={[styles.bottomButtonsView, {backgroundColor: workoutSet.current?.cardColor}]}>
                 {!isFormVisible && workoutTasks.length > 0 && <>                   
                     <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
                         navigation.navigate("WorkoutPlaybackView", {tasks: workoutTasks, currentTaskIndex: 0});
@@ -115,7 +116,6 @@ const styles = StyleSheet.create({
     content: {
         flex: 1,
         flexDirection: "column",
-        backgroundColor: "cyan",
     },
     listView: {
         flex: 8,
@@ -127,10 +127,7 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
 
-        marginTop: 5,
         paddingVertical: 5,
-
-        backgroundColor: "white",
     },
     addButton: {
         justifyContent: "center",

@@ -68,7 +68,9 @@ export default function WorkoutTaskListItem(props : Props) {
                 disabled={props.disabled}
                 style={[
                     styles.content,
-                    props.disabled ? {backgroundColor: darkenColor(props.task.cardColor, 0.1)} : {backgroundColor: props.task.cardColor},
+                    props.disabled 
+                        ? {backgroundColor: darkenColor(props.task.cardColor, 0.1), borderColor: darkenColor("white", 0.1)} 
+                        : {backgroundColor: props.task.cardColor, borderColor: "white"},
                 ]}
             >
                 <Text style={styles.titleText}>{props.task.title}</Text>
@@ -87,6 +89,11 @@ const styles = StyleSheet.create({
         paddingLeft: 40,
         paddingVertical: 10,
         minHeight: 90,
+
+        borderLeftWidth: 4,
+        borderRightWidth: 4,
+        borderBottomWidth: 2,
+        borderTopWidth: 2,
     },
     titleText: {
         fontSize: 20,

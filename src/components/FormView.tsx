@@ -43,6 +43,8 @@ export const styles = StyleSheet.create({
         marginHorizontal: '3%',
 
         borderRadius: 20,
+        borderWidth: 1,
+        borderColor: "gray",
         backgroundColor: "white",
     },
     cancelXButtonView: {

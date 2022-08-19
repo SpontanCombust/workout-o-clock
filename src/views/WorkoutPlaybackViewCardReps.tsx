@@ -1,5 +1,5 @@
 import React from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { Pressable, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CompletionConditionType } from "../types/WorkoutTask";
 
 import { WorkoutPlaybackViewCardProps } from "./WorkoutPlaybackView";
@@ -13,9 +13,12 @@ export default function WorkoutPlaybackViewCardReps(props: WorkoutPlaybackViewCa
                 <Text style={styles.repsCount}>{props.task.completionCondition.type == CompletionConditionType.REPS ? props.task.completionCondition.reps : 0}</Text>
                 <Text style={styles.repsCountFooter}>Reps</Text>
             </View>
-            <Pressable style={styles.doneButton} onPress={() => props.onTaskFinished()}>
+            <TouchableOpacity 
+            activeOpacity={0.2} 
+            style={[styles.doneButton, {backgroundColor: props.task.cardColor}]} 
+            onPress={() => props.onTaskFinished()}>
                 <Text style={styles.doneButtonText}>Done!</Text>
-            </Pressable>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -56,11 +59,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         
         paddingVertical: 5,
-        width: "100%",
+        marginBottom: 20,
+        width: "60%",
 
-        backgroundColor: "lime",
+        borderWidth: 3,
+        borderRadius: 50,
+        borderColor: "black",
     },
     doneButtonText: {
         fontSize: 30,
+        fontWeight: "500",
     },
 });

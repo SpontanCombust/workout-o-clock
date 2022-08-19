@@ -29,14 +29,16 @@ export default function WorkoutSetListItem({workoutSet, navigation, onDeleteSet}
     function TaskSummaryItem(props: {task: WorkoutTask}) {
         let completionCond: string;
         if(props.task.completionCondition.type === CompletionConditionType.TIME) {
-            completionCond = `${props.task.completionCondition.minutes}:${props.task.completionCondition.seconds}`;
+            completionCond = 
+                `${props.task.completionCondition.minutes.toString().padStart(2, "0")}:` +
+                `${props.task.completionCondition.seconds.toString().padStart(2, "0")}`;
         } else {
             completionCond = `${props.task.completionCondition.reps} reps`;
         }
 
         return (
             <View style={styles.taskSummaryItemView}>
-                <Text style={styles.taskSummaryItemText}>{props.task.title} - {completionCond}</Text>
+                <Text style={styles.taskSummaryItemText}>{props.task.title.padStart(20)} - {completionCond.padEnd(20)}</Text>
             </View>
         )
     }
@@ -64,6 +66,7 @@ export default function WorkoutSetListItem({workoutSet, navigation, onDeleteSet}
     }
 
     return (
+        //FIXME change opacity only on short *tap*, not on every touch
         <TouchableOpacity onPress={() => {
             navigation.navigate("WorkoutTaskList", {workoutSetId: workoutSet.id});
         }}>
@@ -101,7 +104,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
 
         width: winSize.width * 0.9,
-        marginVertical: winSize.height * 0.05,
+        marginTop: winSize.height * 0.05,
 
         borderWidth: 4,
         borderColor: "white",
@@ -110,12 +113,19 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 40,
         fontWeight: "bold",
+
+        marginBottom: 15,
     },
     taskSummaryItemView: {
+        flexDirection: "row",
+        justifyContent: "center",
+        alignItems: "center",
 
+        paddingVertical: 2,
     },
     taskSummaryItemText: {
-
+        fontWeight: "300",
+        fontSize: 20,
     },
     setOverviewView: {
         flex: 9,

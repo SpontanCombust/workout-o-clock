@@ -30,7 +30,7 @@ const styles = StyleSheet.create({
         alignItems: "center",
 
         width: winSize.width * 0.9,
-        marginVertical: winSize.height * 0.05,
+        marginTop: winSize.height * 0.05,
 
         borderWidth: 4,
         borderColor: "springgreen",

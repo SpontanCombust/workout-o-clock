@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { CompletionConditionType } from "../types/WorkoutTask";
 
 import { WorkoutPlaybackViewCardProps } from "./WorkoutPlaybackView";
@@ -13,10 +13,9 @@ export default function WorkoutPlaybackViewCardTime(props: WorkoutPlaybackViewCa
     );
 
     useEffect(() => {
-        const interval = setInterval(
-            () => setSecondsLeft(secondsLeft - 1),
-            1000
-        );
+        const interval = setInterval(() => {
+            setSecondsLeft(prev => prev - 1);
+        }, 1000);
 
         return () => clearInterval(interval);
     }, []);
@@ -41,9 +40,12 @@ export default function WorkoutPlaybackViewCardTime(props: WorkoutPlaybackViewCa
             <View style={styles.timeView}>
                 <Text style={styles.time}>{timeText()}</Text>
             </View>
-            <Pressable style={styles.skipButton} onPress={() => setSecondsLeft(0)}>
+            <TouchableOpacity 
+            activeOpacity={0.2} 
+            style={[styles.skipButton, {backgroundColor: props.task.cardColor}]} 
+            onPress={() => setSecondsLeft(0)}>
                 <Text style={styles.skipButtonText}>Skip</Text>
-            </Pressable>
+            </TouchableOpacity>
         </View>
     )
 }
@@ -80,11 +82,15 @@ const styles = StyleSheet.create({
         alignItems: "center",
         
         paddingVertical: 5,
-        width: "100%",
+        marginBottom: 20,
+        width: "60%",
 
-        backgroundColor: "lime",
+        borderWidth: 3,
+        borderRadius: 50,
+        borderColor: "black",
     },
     skipButtonText: {
         fontSize: 30,
+        fontWeight: "500",
     },
 });

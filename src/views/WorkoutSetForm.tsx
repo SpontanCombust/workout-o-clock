@@ -23,7 +23,7 @@ export function WorkoutSetForm({route, navigation} : NavProps) {
             setTitle(route.params.editedSet.title);
             colorPickerContext.setColor(route.params.editedSet.cardColor);
         } else {
-            colorPickerContext.setColor("springgreen");
+            colorPickerContext.setColor("cyan");
         }
     }, []);
 
