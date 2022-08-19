@@ -1,7 +1,8 @@
+import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect } from "@react-navigation/native";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useCallback, useRef, useState } from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { ActivityIndicator, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import DraggableFlatList from "react-native-draggable-flatlist";
 
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
@@ -16,13 +17,17 @@ type NavProps = NativeStackScreenProps<NavigatorsParamList, 'WorkoutTaskList'>;
 
 export default function WorkoutTaskList({route, navigation} : NavProps) {
     const storage = useWorkoutStorage();
-    const isFormVisible = useRef(false);
+
+    const [tasksAreLoading, setTasksLoading] = useState(true);
+    const [isFormVisible, setFormVisible] = useState(false);
+
     const workoutSet = useRef<WorkoutSet>();
     const [workoutTasks, setWorkoutTasks] = useState<WorkoutTask[]>([]);
 
     useFocusEffect(
         useCallback(() => {
-            isFormVisible.current = false;
+            setTasksLoading(true);
+            setFormVisible(false);
 
             storage.get("WorkoutSet", route.params.workoutSetId)
             .then(set => {
@@ -33,7 +38,10 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                 });
 
                 storage.getMultiple("WorkoutTask", set.taskIds)
-                .then(tasks => setWorkoutTasks(tasks));
+                .then(tasks => {
+                    setWorkoutTasks(tasks);
+                    setTasksLoading(false);
+                });
             });
         }, [])
     );
@@ -70,7 +78,9 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
         //TODO add spinner when tasks are not loaded yet
         <View style={styles.content}>
             <View style={styles.listView}>
-                <DraggableFlatList<WorkoutTask>
+                {tasksAreLoading
+                ? <ActivityIndicator size={"large"} color="white" style={{marginTop: 30}}/>
+                : <DraggableFlatList<WorkoutTask>
                     data={workoutTasks}
                     onDragEnd={({data}) => reorderTasks(data)}
                     keyExtractor={(item) => item.id}
@@ -83,18 +93,18 @@ export default function WorkoutTaskList({route, navigation} : NavProps) {
                             onRequestDelete={() => deleteTask(params.item.id)}/>
                     }
                     ListFooterComponent={<WorkoutTaskListFooter onPressed={() => {
-                        isFormVisible.current = true;
+                        setFormVisible(true);
                         navigation.navigate("WorkoutTaskForm", {setId: route.params.workoutSetId});
                     }}/>}
                 />
+                }
             </View>
             <View style={styles.bottomButtonsView}>
-                {!isFormVisible.current && workoutTasks.length > 0 && <>                   
+                {!isFormVisible && workoutTasks.length > 0 && <>                   
                     <TouchableOpacity activeOpacity={0.85} style={styles.addButton} onPress={() => {
                         navigation.navigate("WorkoutPlaybackView", {tasks: workoutTasks, currentTaskIndex: 0});
                     }}>
-                        {/*TODO set content as svg arrow image*/}
-                        <Text style={styles.addButtonText}>{">"}</Text>
+                        <Ionicons name="play" size={50} color="lawngreen"/>
                     </TouchableOpacity>
                 </>}
             </View>
@@ -118,7 +128,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
 
-        marginTop: 5, 
+        marginTop: 5,
+        paddingVertical: 5,
 
         backgroundColor: "white",
     },
@@ -126,7 +137,8 @@ const styles = StyleSheet.create({
         justifyContent: "center",
         alignItems: "center",
 
-        marginVertical: 10,
+        paddingLeft: 5,
+        paddingTop: 3,
 
         width: 70,
         height: 70,
@@ -142,13 +154,4 @@ const styles = StyleSheet.create({
 
         backgroundColor: "white",
     },
-    addButtonText: {
-        color: "lawngreen",
-        fontSize: 80,
-        fontWeight: "bold",
-        fontStyle: "normal",
-
-        position: "absolute",
-        top: -25,
-    }
 })

@@ -44,8 +44,8 @@ export default function WorkoutSetListItem({workoutSet, navigation}: Props) {
         <TouchableOpacity onPress={() => {
             navigation.navigate("WorkoutTaskList", {workoutSetId: workoutSet.id});
         }}>
-            <View style={[styles.container, {backgroundColor: workoutSet !== undefined ? workoutSet.cardColor : "white"}]}>
-                <Text style={styles.title}>{workoutSet !== undefined ? workoutSet.title : ""}</Text>
+            <View style={[styles.container, {backgroundColor: workoutSet.cardColor}]}>
+                <Text style={styles.title}>{workoutSet.title}</Text>
                 <FlatList<WorkoutTask>
                     data={workoutTasks}
                     renderItem={({item}) => <TaskSummaryItem task={item} />}
@@ -69,6 +69,7 @@ const styles = StyleSheet.create({
         marginVertical: winSize.height * 0.05,
 
         borderWidth: 4,
+        borderColor: "white",
         backgroundColor: "white",
     },
     title: {

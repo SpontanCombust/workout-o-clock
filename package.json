@@ -30,7 +30,8 @@
     "react-native-screens": "~3.11.1",
     "react-native-swipeable-item": "^2.0.7",
     "react-native-web": "0.17.7",
-    "uuid": "^8.3.2"
+    "uuid": "^8.3.2",
+    "@expo/vector-icons": "^13.0.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
