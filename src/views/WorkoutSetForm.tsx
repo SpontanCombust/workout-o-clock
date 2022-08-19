@@ -1,8 +1,9 @@
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import React, { useEffect, useState } from "react";
-import { Button, Keyboard, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Keyboard, StyleSheet, Text, View } from "react-native";
 import { TextInput, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import FormView from "../components/FormView";
+import { useColorPickerContext } from "../context/ColorPickerContext";
 
 import NavigatorsParamList from "../navigation/NavigatorsParamList";
 import { useWorkoutStorage } from "../storage/WorkoutStorage";
@@ -15,12 +16,12 @@ export function WorkoutSetForm({route, navigation} : NavProps) {
     const storage = useWorkoutStorage();
 
     const [title, setTitle] = useState("New workout set");
-    const [cardColor, setCardColor] = useState("springgreen");
+    const colorPickerContext = useColorPickerContext();
 
     useEffect(() => {
         if(route.params.editedSet !== undefined) {
             setTitle(route.params.editedSet.title);
-            setCardColor(route.params.editedSet.cardColor);
+            colorPickerContext.setColor(route.params.editedSet.cardColor);
         }
     }, []);
 
@@ -30,10 +31,10 @@ export function WorkoutSetForm({route, navigation} : NavProps) {
             return storage.update("WorkoutSet", route.params.editedSet.id, {
                 ...route.params.editedSet,
                 title: title,
-                cardColor: cardColor
+                cardColor: colorPickerContext.color
             });
         } else {
-            return storage.create("WorkoutSet", new WorkoutSet(title, cardColor));
+            return storage.create("WorkoutSet", new WorkoutSet(title, colorPickerContext.color));
         }
     }
 
@@ -44,6 +45,16 @@ export function WorkoutSetForm({route, navigation} : NavProps) {
         onRequestSave={() => saveWorkoutSet().then(() => navigation.goBack())}>
             <Text style={styles.inputHeader}>Title</Text>
             <TextInput value={title} onChangeText={(text: string) => setTitle(text)} style={styles.textInput}/>
+
+            <View style={styles.colorPickerView}>
+                <TouchableWithoutFeedback onPress={() => {
+                    Keyboard.dismiss();
+                    navigation.navigate("ColorPickerScreen");
+                }}>
+                    <View style={[styles.colorPickerButton, {backgroundColor: colorPickerContext.color}]}></View>
+                </TouchableWithoutFeedback>
+                <Text style={[styles.inputHeader, {marginTop: 5}]}>Select card color</Text>
+            </View>
         </FormView>
     )
 } 
@@ -61,5 +72,16 @@ const styles = StyleSheet.create({
         borderColor: "gray",
         borderWidth: 1,
         borderRadius: 5,
+    },
+    colorPickerView: {
+        flexDirection: "row", 
+        marginTop: 25,
+    },
+    colorPickerButton: {
+        width: 30,
+        height: 30,
+        borderWidth: 1,
+        borderColor: "black",
+        marginRight: 10,
     },
 });
