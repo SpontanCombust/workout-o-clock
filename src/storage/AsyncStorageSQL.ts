@@ -80,6 +80,10 @@ export class Storage<StorageConfig> {
         tableName: TableName,
         ids: string[]
     ): Promise<(StorageConfig[TableName] extends StorageObject ? StorageConfig[TableName] : never)[]> {
+        if(ids.length == 0) {
+            return [];
+        }
+
         const keyPrefix = `${packageName}_${String(tableName)}_`;
 
         try {
@@ -140,7 +144,12 @@ export class Storage<StorageConfig> {
         tableName: TableName,
         ids: string[]
     ): Promise<void> {
+        if(ids.length == 0) {
+            return;
+        }
+
         const keys = ids.map(id => `${packageName}_${String(tableName)}_${id}`);
+        console.log(keys);
 
         try {
             await AsyncStorage.multiRemove(keys);
