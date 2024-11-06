@@ -1,0 +1,52 @@
+databaseChangeLog:
+- changeSet:
+    id:  tasks-and-sets
+    author:  spontan
+    changes:
+    - createTable:
+        schemaName: woc
+        tableName: workout_set
+        columns:
+        - column:
+            name:  set_id
+            type:  BIGINT
+            constraints:
+              nullable: false
+              primaryKey: true
+              unique: true
+        - column:
+            name:  title
+            type:  VARCHAR(64)
+        - column:
+            name:  card_color_hex
+            type:  VARCHAR(8)
+    - createTable:
+        schemaName: woc
+        tableName: workout_task
+        columns:
+        - column:
+            name:  task_id
+            type:  BIGINT
+            constraints:
+              nullable: false
+              primaryKey: true
+              unique: true
+        - column:
+            name: set_id
+            type: BIGINT
+            constraints:
+              nullable: false
+              foreignKeyName: set_id
+        - column:
+            name:  title
+            type:  VARCHAR(64)
+        - column:
+            name:  completion_type
+            type:  CHAR(1) # R - reps, T - time (in seconds)
+        - column:
+            name:  completion_value
+            type:  INT
+        - column:
+            name:  card_color_hex
+            type:  VARCHAR(8)
+    

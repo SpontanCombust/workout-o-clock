@@ -1,6 +1,11 @@
 # Workout-o-clock
 
-React Native application for creating customisable fitness excersise sets with time-based and repetition-based tasks.
+`React Native + Spring + PostreSQL`
+
+Application stack for creating customisable fitness excersise sets with time-based and repetition-based tasks.
+
+For developer focused information head to [DEV-README](DEV-README.md)
+
 
 
 Demo:

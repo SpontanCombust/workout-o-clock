@@ -1,3 +1,7 @@
+.vscode/
+
+*.env
+
 client/node_modules/
 client/.expo/
 client/dist/

@@ -1,0 +1,4 @@
+databaseChangeLog:
+  - include:
+      file: changelog-v0.1.0_20241106-1650_tasks-and-sets.yml
+      errorIfMissing: true

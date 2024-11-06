@@ -1,0 +1,55 @@
+name: workout-o-clock
+
+services:
+  db:
+    container_name: woc-db
+    image: postgres:16.4
+    profiles: [dev, prod]
+    restart: unless-stopped
+    environment:
+      POSTGRES_PASSWORD: ${DB_ROOT_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      DB_LIQUIBASE_PASSWORD: ${DB_LIQUIBASE_PASSWORD}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
+    volumes:
+      - type: bind
+        source: db/init
+        target: /docker-entrypoint-initdb.d
+      - type: volume
+        source: db-volume
+        target: /var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+
+  # one-off containers
+  liquibase:
+    container_name: liquibase
+    image: liquibase:latest
+    profiles: [cicd]
+    restart: never
+    environment:
+      LIQUIBASE_COMMAND_USERNAME: liquibase
+      LIQUIBASE_COMMAND_PASSWORD: ${DB_LIQUIBASE_PASSWORD}
+      LIQUIBASE_COMMAND_CHANGELOG_FILE: changelog-root.yml
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://woc-db:5432/${DB_NAME}?currentSchema=woc
+      LIQUIBASE_SEARCH_PATH: /liquibase/changelog
+    volumes:
+      - type: bind
+        source: db/migrations/changelog
+        target: /liquibase/changelog
+
+
+  # auxliary services
+  pgadmin:
+    container_name: woc-pgadmin
+    image: elestio/pgadmin:latest
+    restart: always
+    profiles: [dev]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
+    ports:
+      - '8090:80'
+volumes:
+  db-volume: {}
