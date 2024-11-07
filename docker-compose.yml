@@ -21,6 +21,17 @@ services:
     ports:
       - '5432:5432'
 
+  api:
+    container_name: woc-api
+    build: api/
+    profiles: [dev, prod]
+    environment:
+      DB_NAME: ${DB_NAME}
+      DB_APP_PASSWORD: ${DB_APP_PASSWORD}
+      API_DB_HOST: woc-db # when launching as a service it should always connect within Docker's private network
+    ports:
+      - '8080:8080'
+
 
   # one-off containers
   liquibase:
@@ -50,6 +61,6 @@ services:
       PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
       PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     ports:
-      - '8090:80'
+      - '5433:80'
 volumes:
   db-volume: {}
