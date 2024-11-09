@@ -1,0 +1,17 @@
+databaseChangeLog:
+- changeSet:
+    id: 20241109-1730_task-completion-split
+    author: spontan
+    changes:
+    - renameColumn:
+        schemaName: woc
+        tableName: workout_task
+        oldColumnName: completion_value
+        newColumnName: completion_reps
+    - addColumn:
+        schemaName: woc
+        tableName: workout_task
+        columns:
+        - column:
+            name: completion_time_secs
+            type: INT

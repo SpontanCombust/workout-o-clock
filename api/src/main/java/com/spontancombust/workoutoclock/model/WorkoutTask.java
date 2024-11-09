@@ -31,11 +31,14 @@ public class WorkoutTask {
     @Column(name = "title", length = 64)
     private String title;
 
-    @Column(name = "completion_type")
+    @Column(name = "completion_type", columnDefinition="BPCHAR(1)")
     private WorkoutTaskCompletionType completionType;
 
-    @Column(name = "completion_value")
-    private Integer completionValue;
+    @Column(name = "completion_reps")
+    private Integer completionReps;
+
+    @Column(name = "completion_time_secs")
+    private Integer completionTimeSecs;
 
     @Column(name = "card_color_hex", length = 8)
     private String cardColorHex;
