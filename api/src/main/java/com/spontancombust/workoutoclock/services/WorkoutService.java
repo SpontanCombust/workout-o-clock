@@ -50,7 +50,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutSet createWorkoutSet(WorkoutSet newSet) throws ObjectAlreadyExistsException {
-        if (setRepository.findById(newSet.getId()).isPresent()) {
+        if (setRepository.existsById(newSet.getId())) {
             throw new ObjectAlreadyExistsException("WorkoutSet", newSet.getId());
         }
 
@@ -59,7 +59,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutSet updateWorkoutSet(WorkoutSet updatedSet) throws ObjectNotFoundException {
-        if (setRepository.findById(updatedSet.getId()).isEmpty()) {
+        if (!setRepository.existsById(updatedSet.getId())) {
             throw new ObjectNotFoundException("WorkoutSet", updatedSet.getId());
         }
 
@@ -68,7 +68,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public Boolean deleteWorkoutSetById(Long id) {
-        if (setRepository.findById(id).isPresent()) {
+        if (setRepository.existsById(id)) {
             taskRepository.deleteAllBySetId(id);
             setRepository.deleteById(id);
             return true;
@@ -91,7 +91,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutTask createWorkoutTask(WorkoutTask newTask) {
-        if (taskRepository.findById(newTask.getId()).isPresent()) {
+        if (taskRepository.existsById(newTask.getId())) {
             throw new ObjectAlreadyExistsException("WorkoutTask", newTask.getId());
         }
 
@@ -100,7 +100,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutTask updateWorkoutTask(WorkoutTask updatedTask) {
-        if (setRepository.findById(updatedTask.getId()).isEmpty()) {
+        if (!taskRepository.existsById(updatedTask.getId())) {
             throw new ObjectNotFoundException("WorkoutTask", updatedTask.getId());
         }
 
@@ -109,7 +109,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public Boolean deleteWorkoutTaskById(Long id) {
-        if (taskRepository.findById(id).isPresent()) {
+        if (taskRepository.existsById(id)) {
             taskRepository.deleteById(id);
             return true;
         } else {
