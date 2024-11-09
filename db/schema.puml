@@ -18,13 +18,13 @@ table(workout_task) {
     --
     foreign_key(set_id): BIGINT NOT NULL
     column(title): VARCHAR(64)
-    column(completion_type): CHAR(1)
-    column(completion_reps): INT
-    column(completion_time_secs): INT
+    column(objective_type): CHAR(1)
+    column(objective_reps): INT
+    column(objective_time_secs): INT
     column(card_color_hex): VARCHAR(8)
 }
 
-note right: completion_type as "R" for reps or "T" for time
+note right: objective_type as "R" for reps or "T" for time in seconds
 
 
 workout_set }o--|| workout_task

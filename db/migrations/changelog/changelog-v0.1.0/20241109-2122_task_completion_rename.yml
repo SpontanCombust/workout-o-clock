@@ -1,0 +1,21 @@
+databaseChangeLog:
+- changeSet:
+    id: 20241109-2122_task_completion_rename
+    author: spontan
+    changes:
+    - renameColumn:
+        schemaName: woc
+        tableName: workout_task
+        oldColumnName: completion_type
+        newColumnName: objective_type
+    - renameColumn:
+        schemaName: woc
+        tableName: workout_task
+        oldColumnName: completion_reps
+        newColumnName: objective_reps
+    - renameColumn:
+        schemaName: woc
+        tableName: workout_task
+        oldColumnName: completion_time_secs
+        newColumnName: objective_time_secs
+
