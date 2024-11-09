@@ -1,0 +1,32 @@
+@startuml woc
+
+!define primary_key(x) <b><color:#b8861b><&key></color> x</b>
+!define foreign_key(x) <color:#aaaaaa><&key></color> x
+!define column(x) <color:#efefef><&media-record></color> x
+!define table(x) entity x << (T, white) >>
+
+
+table(workout_set) {
+    primary_key(set_id): BIGINT
+    --
+    column(title): VARCHAR(64)
+    column(card_color_hex): VARCHAR(8)
+}
+
+table(workout_task) {
+    primary_key(task_id): BIGINT
+    --
+    foreign_key(set_id): BIGINT NOT NULL
+    column(title): VARCHAR(64)
+    column(completion_type): CHAR(1)
+    column(completion_reps): INT
+    column(completion_time_secs): INT
+    column(card_color_hex): VARCHAR(8)
+}
+
+note right: completion_type as "R" for reps or "T" for time
+
+
+workout_set }o--|| workout_task
+
+@enduml

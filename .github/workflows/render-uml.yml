@@ -1,0 +1,21 @@
+name: render-uml
+
+on:
+  push:
+    branches: ['*']
+    paths:
+      - db/schema.puml
+
+jobs:
+  generate_plantuml:
+    name: plantuml
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: plantuml
+        uses: grassedge/generate-plantuml-action@v1.5
+        with:
+          message: "Render PlantUML files"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
