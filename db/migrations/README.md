@@ -5,4 +5,7 @@ Migrations in the database should be handled using [Liquibase](https://docs.liqu
 docker compose run --rm liquibase update
 ```
 
-Naming convention of changelogs is: `changelog-{version_tag}_{YYYY}{MM}{dd}-{HH}{mm}_{changelog_name}`
+All changelogs are grouped into version folders. With each new version a new entry needs to be added at the bottom of `changelog-root.yml`.
+
+Each migration YAML file should contain just one changeset with the id referencing its name. 
+Naming convention of these files is: `{YYYY}{MM}{dd}-{HH}{mm}_{changeset_name}` and changeset's `id` property inside should be named the same. This convention assures migrations are run in a correct order.
