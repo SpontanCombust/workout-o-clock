@@ -3,7 +3,9 @@ package com.spontancombust.workoutoclock.model;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,7 +20,8 @@ import lombok.Data;
 public class WorkoutSet {
     @Id
     @Column(name = "set_id")
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "workout_set_gen")
+    @SequenceGenerator(name = "workout_set_gen", sequenceName = "workout_set_seq", allocationSize = 1)
     private Long id;
 
     @Column(name = "title", length = 64)

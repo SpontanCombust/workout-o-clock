@@ -1,0 +1,17 @@
+databaseChangeLog:
+- changeSet:
+    id: 20241109-1855_table-seqeunces
+    author: spontan
+    changes:
+    - sql:
+        sql: |
+          ALTER DEFAULT PRIVILEGES IN SCHEMA woc GRANT ALL PRIVILEGES ON SEQUENCES TO app;
+    - createSequence:
+        schemaName: woc
+        sequenceName: workout_set_seq
+        startValue: 1
+    - createSequence:
+        schemaName: woc
+        sequenceName: workout_task_seq
+        startValue: 1
+    
