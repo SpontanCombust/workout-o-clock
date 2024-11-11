@@ -32,15 +32,12 @@ public class WorkoutSetController {
 
 
     @PostMapping("/")
-    public ResponseEntity<WorkoutSetDto> createWorkoutSet(@RequestBody WorkoutSetDetailsDto newSetDetailsDto) {
-        var newSetModel = new WorkoutSet(
-            null,
+    public ResponseEntity<WorkoutSetDto> createWorkoutSet(@RequestBody WorkoutSetDetailsDto newSetDetailsDto) {   
+        var newSetModel = workoutService.createWorkoutSet(
             newSetDetailsDto.getTitle(),
             newSetDetailsDto.getCardColorHex()
-        ); 
-        
-        var createdSetModel = workoutService.createWorkoutSet(newSetModel);
-        var createdSetDto = Converters.workoutSetDto.fromModel(createdSetModel);
+        );
+        var createdSetDto = Converters.workoutSetDto.fromModel(newSetModel);
         return ResponseEntity.ok(createdSetDto);
     }
 
