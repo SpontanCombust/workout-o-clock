@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: 20241111-1642_task_index
+    author: spontan
+    changes:
+    - addColumn:
+        schemaName: woc
+        tableName: workout_task
+        columns:
+        - column:
+            name: index
+            type: INT

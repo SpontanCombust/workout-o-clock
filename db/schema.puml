@@ -17,6 +17,7 @@ table(workout_task) {
     primary_key(task_id): BIGINT
     --
     foreign_key(set_id): BIGINT NOT NULL
+    column(index): INT
     column(title): VARCHAR(64)
     column(objective_type): CHAR(1)
     column(objective_reps): INT

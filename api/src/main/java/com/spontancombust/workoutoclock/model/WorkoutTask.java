@@ -11,12 +11,14 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 
 
 @Data
 @Builder
+@AllArgsConstructor
 @Entity
 @Table(name = "workout_task")
 public class WorkoutTask {
@@ -26,10 +28,17 @@ public class WorkoutTask {
     @SequenceGenerator(name = "workout_task_gen", sequenceName = "workout_task_seq", allocationSize = 1)
     private Long id;
 
+    @Column(name = "set_id")
+    @NotNull
+    private Long setId;
+
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "set_id")
+    @JoinColumn(name = "set_id", insertable = false, updatable = false)
     @NotNull
     private WorkoutSet set;
+
+    @Column(name = "index")
+    private Integer index;
 
     @Column(name = "title", length = 64)
     private String title;
