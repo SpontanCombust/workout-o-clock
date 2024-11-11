@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import com.spontancombust.workoutoclock.converters.Converters;
 import com.spontancombust.workoutoclock.dto.WorkoutSetDetailsDto;
 import com.spontancombust.workoutoclock.dto.WorkoutSetDto;
+import com.spontancombust.workoutoclock.model.WorkoutSet;
 import com.spontancombust.workoutoclock.services.WorkoutService;
 
 
@@ -32,7 +33,12 @@ public class WorkoutSetController {
 
     @PostMapping("/")
     public ResponseEntity<WorkoutSetDto> createWorkoutSet(@RequestBody WorkoutSetDetailsDto newSetDetailsDto) {
-        var newSetModel = Converters.workoutSetDetailsDto.toModel(newSetDetailsDto);
+        var newSetModel = new WorkoutSet(
+            null,
+            newSetDetailsDto.getTitle(),
+            newSetDetailsDto.getCardColorHex()
+        ); 
+        
         var createdSetModel = workoutService.createWorkoutSet(newSetModel);
         var createdSetDto = Converters.workoutSetDto.fromModel(createdSetModel);
         return ResponseEntity.ok(createdSetDto);
@@ -40,8 +46,12 @@ public class WorkoutSetController {
 
     @PutMapping("/{id}")
     public ResponseEntity<WorkoutSetDto> updateWorkoutSet(@PathVariable Long id, @RequestBody WorkoutSetDetailsDto updatedSetDetailsDto) {
-        var updatedSetModel = Converters.workoutSetDetailsDto.toModel(updatedSetDetailsDto);
-        updatedSetModel.setId(id);
+        var updatedSetModel = new WorkoutSet(
+            id,
+            updatedSetDetailsDto.getTitle(),
+            updatedSetDetailsDto.getCardColorHex()
+        );
+        
         updatedSetModel = workoutService.updateWorkoutSet(updatedSetModel);
         var updatedSetDto = Converters.workoutSetDto.fromModel(updatedSetModel);
         return ResponseEntity.ok(updatedSetDto);
