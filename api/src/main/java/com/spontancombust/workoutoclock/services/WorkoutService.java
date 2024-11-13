@@ -68,6 +68,8 @@ class WorkoutServiceImpl implements WorkoutService {
     ) throws ObjectAlreadyExistsException {
         var newSet = new WorkoutSet(
             null,
+            null,
+            null,
             title,
             cardColorHex
         );
@@ -78,7 +80,7 @@ class WorkoutServiceImpl implements WorkoutService {
     @Override
     public WorkoutSet updateWorkoutSet(WorkoutSet updatedSet) throws ObjectNotFoundException {
         if (!setRepository.existsById(updatedSet.getId())) {
-            throw new ObjectNotFoundException("WorkoutSet", updatedSet.getId());
+            throw new ObjectNotFoundException("WorkoutSet");
         }
 
         return setRepository.save(updatedSet);
@@ -102,7 +104,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutSet getWorkoutSetById(Long id) throws ObjectNotFoundException {
-        return setRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("WorkoutSet", id));
+        return setRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("WorkoutSet"));
     }
 
 
@@ -139,7 +141,7 @@ class WorkoutServiceImpl implements WorkoutService {
     @Transactional
     public WorkoutTask updateWorkoutTask(WorkoutTask updatedTask) throws ObjectNotFoundException, InvalidWorkoutTaskIndexException {
         if (!taskRepository.existsById(updatedTask.getId())) {
-            throw new ObjectNotFoundException("WorkoutTask", updatedTask.getId());
+            throw new ObjectNotFoundException("WorkoutTask");
         }
 
         var currentTaskIndex = this.getWorkoutTaskById(updatedTask.getId()).getIndex();
@@ -214,7 +216,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutTask getWorkoutTaskById(Long id) throws ObjectNotFoundException {
-        return taskRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("WorkoutTask", id));
+        return taskRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("WorkoutTask"));
     }
 
 }

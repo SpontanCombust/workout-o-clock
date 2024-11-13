@@ -6,9 +6,20 @@
 !define table(x) entity x << (T, white) >>
 
 
-table(workout_set) {
-    primary_key(set_id): BIGINT
+table(user) {
+    primary_key(user_id): BIGINT NOT NULL
     --
+    column(username): VARCHAR(255) NOT NULL
+    column(email): VARCHAR(255) NOT NULL
+    column(password): VARCHAR(MAX) NOT NULL
+    column(created_date): DATETIME NOT NULL
+    column(modified_date): DATETIME
+}
+
+table(workout_set) {
+    primary_key(set_id): BIGINT NOT NULL
+    --
+    foreign_key(user_id): BIGINT NOT NULL
     column(title): VARCHAR(64)
     column(card_color_hex): VARCHAR(8)
 }
@@ -28,6 +39,8 @@ table(workout_task) {
 note right: objective_type as "R" for reps or "T" for time in seconds
 
 
-workout_set }o--|| workout_task
+workout_set }o-up-|| user
+workout_task }o-up-|| workout_set
+
 
 @enduml

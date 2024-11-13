@@ -45,6 +45,8 @@ public class WorkoutSetController {
     public ResponseEntity<WorkoutSetDto> updateWorkoutSet(@PathVariable Long id, @RequestBody WorkoutSetDetailsDto updatedSetDetailsDto) {
         var updatedSetModel = new WorkoutSet(
             id,
+            null,
+            null,
             updatedSetDetailsDto.getTitle(),
             updatedSetDetailsDto.getCardColorHex()
         );
