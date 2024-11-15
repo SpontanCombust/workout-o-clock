@@ -31,8 +31,8 @@ public class WebSecurityConfig {
         return http
             // .cors(cors -> cors
             //     .disable())
-            // .csrf(csrf -> csrf
-            //     .disable())
+            .csrf(csrf -> csrf
+                .disable())
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .formLogin(formLogin -> formLogin
