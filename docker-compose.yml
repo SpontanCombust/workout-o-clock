@@ -29,6 +29,7 @@ services:
       DB_NAME: ${DB_NAME}
       DB_APP_PASSWORD: ${DB_APP_PASSWORD}
       API_DB_HOST: woc-db # when launching as a service it should always connect within Docker's private network
+      API_JWT_SECRET_KEY: ${API_JWT_SECRET_KEY}
     ports:
       - '8080:8080'
 
