@@ -30,11 +30,6 @@ public class AuthController {
         return ResponseEntity.ok(responseDto);
     }
 
-    @PostMapping("/signout")
-    public void signOut() {
-        authService.signOut();
-    }
-
     @PostMapping("/signup")
     public ResponseEntity<UserDto> signUp(@RequestBody SignUpRequestDto req) {
         var user = authService.signUp(req.getEmail(), req.getPassword(), req.getUsername());

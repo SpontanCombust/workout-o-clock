@@ -22,9 +22,7 @@ import com.spontancombust.workoutoclock.security.UserPrincipal;
 public interface AuthService {
 
     String signIn(String email, String password) throws AuthenticationException;
-
-    void signOut();
-    
+  
     User signUp(String email, String password, String username) throws EmailTakenException;
 
     //TODO change password
@@ -54,10 +52,6 @@ class AuthServiceImpl implements AuthService {
 
         String token = jwtService.issueToken(principal);
         return token;
-    }
-
-    public void signOut() {
-        SecurityContextHolder.getContext().setAuthentication(null);
     }
 
     public User signUp(String email, String password, String username) throws EmailTakenException {
