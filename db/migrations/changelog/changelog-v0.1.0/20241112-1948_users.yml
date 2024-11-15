@@ -14,7 +14,7 @@ databaseChangeLog:
                 nullable: false
                 primaryKey: true
                 unique: true
-          - columns:
+          - column:
               name: username
               type: TEXT
               constraints:
