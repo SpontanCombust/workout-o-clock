@@ -14,12 +14,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 
 @Entity
 @Table(name = "workout_set")
 @Data
 @Builder
+@NoArgsConstructor
 @AllArgsConstructor
 public class WorkoutSet {
     @Id
