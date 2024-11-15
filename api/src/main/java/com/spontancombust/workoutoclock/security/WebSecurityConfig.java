@@ -39,7 +39,12 @@ public class WebSecurityConfig {
                 .disable())
             .securityMatcher("/**")
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/auth/login").permitAll()
+                // swagger stuff
+                .requestMatchers("/v3/api-docs/**").permitAll()
+                .requestMatchers("/swagger-ui/**").permitAll()
+                // application endpoints
+                .requestMatchers("/auth/signin").permitAll()
+                .requestMatchers("/auth/signup").permitAll()
                 .anyRequest().authenticated())
             .build();
     }

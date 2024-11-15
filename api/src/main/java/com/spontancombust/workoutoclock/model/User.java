@@ -13,12 +13,14 @@ import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 
 
 @Entity
 @Table(name = "user")
 @Data
+@Builder
 @AllArgsConstructor
 public class User {
     @Id

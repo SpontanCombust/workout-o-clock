@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
+import com.spontancombust.workoutoclock.exceptions.EmailTakenException;
 import com.spontancombust.workoutoclock.exceptions.InvalidWorkoutTaskIndexException;
 import com.spontancombust.workoutoclock.exceptions.ObjectAlreadyExistsException;
 import com.spontancombust.workoutoclock.exceptions.ObjectNotFoundException;
@@ -27,5 +28,10 @@ public class ControllerAdvisor {
     @ExceptionHandler(InvalidWorkoutTaskIndexException.class)
     public ResponseEntity<Object> handleInvalidWorkoutTaskIndexException(InvalidWorkoutTaskIndexException ex, WebRequest req) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(EmailTakenException.class)
+    public ResponseEntity<Object> handleEmailTakenException(EmailTakenException ex, WebRequest req) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.UNAUTHORIZED);
     }
 }
