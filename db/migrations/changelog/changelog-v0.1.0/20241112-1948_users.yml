@@ -16,17 +16,17 @@ databaseChangeLog:
                 unique: true
           - columns:
               name: username
-              type: VARCHAR(255)
+              type: TEXT
               constraints:
                 nullable: false
           - column:
               name: email
-              type: VARCHAR(255)
+              type: TEXT
               constraints:
                 nullable: false                
           - column:
               name: password
-              type: VARCHAR(MAX)
+              type: TEXT
               constraints:
                 nullable: false
           - column:
