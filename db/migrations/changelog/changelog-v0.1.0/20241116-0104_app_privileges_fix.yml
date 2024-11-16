@@ -1,0 +1,10 @@
+databaseChangeLog:
+- changeSet:
+    id: 20241116-0104_app_privileges_fix
+    author: spontan
+    changes:
+    - sql:
+        sql: |
+          GRANT USAGE ON SCHEMA woc TO app;
+          GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA woc TO app;
+          ALTER DEFAULT PRIVILEGES IN SCHEMA woc GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO app;
