@@ -10,6 +10,7 @@ java -jar \
     -DDB_APP_PASSWORD=$DB_APP_PASSWORD \
     -DAPI_DB_HOST=$API_DB_HOST \
     -DAPI_JWT_SECRET_KEY=$API_JWT_SECRET_KEY \
+    -Dspring.profiles.active=$API_PROFILE \
     $(find -name *.jar)
 
 cd -

@@ -12,6 +12,7 @@ ENV DB_NAME=woc_dev
 ENV DB_APP_PASSWORD=woc_app_pass
 ENV API_DB_HOST=localhost
 ENV API_JWT_SECRET_KEY=secretkey
+ENV API_PROFILE=dev
 
 COPY --from=build_img /tmp/api/target/*.jar /woc-api.jar
 ENTRYPOINT java -jar \
@@ -19,6 +20,7 @@ ENTRYPOINT java -jar \
     -DDB_APP_PASSWORD=$DB_APP_PASSWORD \
     -DAPI_DB_HOST=$API_DB_HOST \
     -DAPI_JWT_SECRET_KEY=$API_JWT_SECRET_KEY \
+    -Dspring.profiles.active=$API_PROFILE \
     /woc-api.jar
 
 EXPOSE 8080
