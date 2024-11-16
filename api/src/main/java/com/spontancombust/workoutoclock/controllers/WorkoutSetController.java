@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +20,7 @@ import com.spontancombust.workoutoclock.converters.Converters;
 import com.spontancombust.workoutoclock.dto.WorkoutSetDetailsDto;
 import com.spontancombust.workoutoclock.dto.WorkoutSetDto;
 import com.spontancombust.workoutoclock.model.WorkoutSet;
+import com.spontancombust.workoutoclock.security.UserPrincipal;
 import com.spontancombust.workoutoclock.services.WorkoutService;
 
 
@@ -32,8 +34,12 @@ public class WorkoutSetController {
 
 
     @PostMapping("/")
-    public ResponseEntity<WorkoutSetDto> createWorkoutSet(@RequestBody WorkoutSetDetailsDto newSetDetailsDto) {   
+    public ResponseEntity<WorkoutSetDto> createWorkoutSet(
+        @AuthenticationPrincipal UserPrincipal principal, 
+        @RequestBody WorkoutSetDetailsDto newSetDetailsDto
+    ) {   
         var newSetModel = workoutService.createWorkoutSet(
+            principal.getUserId(),
             newSetDetailsDto.getTitle(),
             newSetDetailsDto.getCardColorHex()
         );
@@ -42,10 +48,14 @@ public class WorkoutSetController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WorkoutSetDto> updateWorkoutSet(@PathVariable Long id, @RequestBody WorkoutSetDetailsDto updatedSetDetailsDto) {
+    public ResponseEntity<WorkoutSetDto> updateWorkoutSet(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long id, 
+        @RequestBody WorkoutSetDetailsDto updatedSetDetailsDto
+    ) {
         var updatedSetModel = new WorkoutSet(
             id,
-            null,
+            principal.getUserId(),
             null,
             updatedSetDetailsDto.getTitle(),
             updatedSetDetailsDto.getCardColorHex()
@@ -57,14 +67,19 @@ public class WorkoutSetController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteWorkoutSet(@PathVariable Long id) {
-        var deleted = workoutService.deleteWorkoutSetById(id);
+    public ResponseEntity<Boolean> deleteWorkoutSet(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long id
+    ) {
+        var deleted = workoutService.deleteWorkoutSetByIdCheckUser(id, principal.getUserId());
         return ResponseEntity.ok(deleted);
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<WorkoutSetDto>> getAllWorkoutSets() {
-        var allWorkoutSetsDtos = workoutService.getAllWorkoutSets().stream()
+    public ResponseEntity<List<WorkoutSetDto>> getAllWorkoutSets(
+        @AuthenticationPrincipal UserPrincipal principal
+    ) {
+        var allWorkoutSetsDtos = workoutService.getAllWorkoutSetsForUser(principal.getUserId()).stream()
                                     .map(m -> Converters.workoutSetDto.fromModel(m))
                                     .collect(Collectors.toList());
 
@@ -72,8 +87,11 @@ public class WorkoutSetController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WorkoutSetDto> getWorkoutSetById(@PathVariable Long id) {
-        var workoutSetModel = workoutService.getWorkoutSetById(id);
+    public ResponseEntity<WorkoutSetDto> getWorkoutSetById(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long id
+    ) {
+        var workoutSetModel = workoutService.getWorkoutSetByIdCheckUser(id, principal.getUserId());
         var workoutSetDto = Converters.workoutSetDto.fromModel(workoutSetModel);
         return ResponseEntity.ok(workoutSetDto);
     }

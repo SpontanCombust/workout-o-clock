@@ -5,6 +5,7 @@ import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,13 +17,13 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 import com.spontancombust.workoutoclock.converters.Converters;
-import com.spontancombust.workoutoclock.dto.WorkoutSetDto;
 import com.spontancombust.workoutoclock.dto.WorkoutTaskDetailsDto;
 import com.spontancombust.workoutoclock.dto.WorkoutTaskDto;
 import com.spontancombust.workoutoclock.dto.WorkoutTaskRepsObjectiveDto;
 import com.spontancombust.workoutoclock.dto.WorkoutTaskTimeObjectiveDto;
 import com.spontancombust.workoutoclock.model.WorkoutTask;
 import com.spontancombust.workoutoclock.model.WorkoutTaskObjectiveType;
+import com.spontancombust.workoutoclock.security.UserPrincipal;
 import com.spontancombust.workoutoclock.services.WorkoutService;
 
 
@@ -37,7 +38,11 @@ public class WorkoutTaskController {
 
 
     @PostMapping("/")
-    public ResponseEntity<WorkoutTaskDto> createWorkoutTask(@PathVariable Long setId, @RequestBody WorkoutTaskDetailsDto newTaskDetailsDto) {
+    public ResponseEntity<WorkoutTaskDto> createWorkoutTask(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long setId, 
+        @RequestBody WorkoutTaskDetailsDto newTaskDetailsDto
+    ) {
         WorkoutTaskObjectiveType objectiveType = null;
         Integer objectiveReps = null;
         Integer objectiveTimeSecs = null;
@@ -51,8 +56,10 @@ public class WorkoutTaskController {
             objectiveType = WorkoutTaskObjectiveType.TIME;
             objectiveTimeSecs = timeObjective.getTimeSeconds();
         }
+        //TODO exception for invalid task objective
 
-        var newTaskModel = workoutService.createWorkoutTask(
+        var newTaskModel = workoutService.createWorkoutTaskCheckUser(
+            principal.getUserId(),
             setId,
             newTaskDetailsDto.getTitle(),
             objectiveType,
@@ -60,12 +67,17 @@ public class WorkoutTaskController {
             objectiveTimeSecs,
             newTaskDetailsDto.getCardColorHex()
         );
-        var createdSetDto = Converters.workoutTaskDto.fromModel(newTaskModel);
-        return ResponseEntity.ok(createdSetDto);
+        
+        var createdTaskDto = Converters.workoutTaskDto.fromModel(newTaskModel);
+        return ResponseEntity.ok(createdTaskDto);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<WorkoutTaskDto> updateWorkoutTask(@PathVariable Long setId, @PathVariable Long id, @RequestBody WorkoutTaskDetailsDto updatedTaskDetailsDto) {
+    public ResponseEntity<WorkoutTaskDto> updateWorkoutTask(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long setId, @PathVariable Long id, 
+        @RequestBody WorkoutTaskDetailsDto updatedTaskDetailsDto
+    ) {
         WorkoutTaskObjectiveType objectiveType = null;
         Integer objectiveReps = null;
         Integer objectiveTimeSecs = null;
@@ -93,30 +105,39 @@ public class WorkoutTaskController {
             updatedTaskDetailsDto.getCardColorHex()
         );
 
-        updatedTaskModel = workoutService.updateWorkoutTask(updatedTaskModel);
+        updatedTaskModel = workoutService.updateWorkoutTaskCheckUser(updatedTaskModel, principal.getUserId());
         var updatedTaskDto = Converters.workoutTaskDto.fromModel(updatedTaskModel);
         return ResponseEntity.ok(updatedTaskDto);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Boolean> deleteWorkoutSet(@PathVariable Long id) {
-        var deleted = workoutService.deleteWorkoutSetById(id);
+    public ResponseEntity<Boolean> deleteWorkoutTask(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long id
+    ) {
+        var deleted = workoutService.deleteWorkoutTaskByIdCheckUser(id, principal.getUserId());
         return ResponseEntity.ok(deleted);
     }
 
     @GetMapping("/")
-    public ResponseEntity<List<WorkoutSetDto>> getAllWorkoutSets() {
-        var allWorkoutSetsDtos = workoutService.getAllWorkoutSets().stream()
-                                    .map(m -> Converters.workoutSetDto.fromModel(m))
+    public ResponseEntity<List<WorkoutTaskDto>> getAllWorkoutTasks(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long setId
+    ) {
+        var allWorkoutTasksDtos = workoutService.getAllWorkoutTasksBySetIdCheckUser(setId, principal.getUserId(), true).stream()
+                                    .map(m -> Converters.workoutTaskDto.fromModel(m))
                                     .collect(Collectors.toList());
 
-        return ResponseEntity.ok(allWorkoutSetsDtos);
+        return ResponseEntity.ok(allWorkoutTasksDtos);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<WorkoutSetDto> getWorkoutSetById(@PathVariable Long id) {
-        var workoutSetModel = workoutService.getWorkoutSetById(id);
-        var workoutSetDto = Converters.workoutSetDto.fromModel(workoutSetModel);
-        return ResponseEntity.ok(workoutSetDto);
+    public ResponseEntity<WorkoutTaskDto> getWorkoutTaskById(
+        @AuthenticationPrincipal UserPrincipal principal,
+        @PathVariable Long id
+    ) {
+        var workoutTaskModel = workoutService.getWorkoutTaskByIdCheckUser(id, principal.getUserId());
+        var workoutTaskDto = Converters.workoutTaskDto.fromModel(workoutTaskModel);
+        return ResponseEntity.ok(workoutTaskDto);
     }
 }

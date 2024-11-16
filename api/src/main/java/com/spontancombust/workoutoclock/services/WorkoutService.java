@@ -20,16 +20,24 @@ import com.spontancombust.workoutoclock.repositories.WorkoutTaskRepository;
 
 public interface WorkoutService {
     WorkoutSet createWorkoutSet(
+        Long userId,
         String title,
         String cardColorHex
-    );
+    ) throws ObjectAlreadyExistsException;
 
     WorkoutSet updateWorkoutSet(WorkoutSet updatedSet) throws ObjectNotFoundException;
 
     Boolean deleteWorkoutSetById(Long id);
+    
+    Boolean deleteWorkoutSetByIdCheckUser(Long id, Long userId);
 
     List<WorkoutSet> getAllWorkoutSets();
+
+    List<WorkoutSet> getAllWorkoutSetsForUser(Long userId);
+
     WorkoutSet getWorkoutSetById(Long id) throws ObjectNotFoundException;
+
+    WorkoutSet getWorkoutSetByIdCheckUser(Long id, Long userId) throws ObjectNotFoundException;
 
 
 
@@ -40,14 +48,33 @@ public interface WorkoutService {
         Integer objectiveReps,
         Integer objectiveTimeSecs,
         String cardColorHex
-    );
+    ) throws ObjectAlreadyExistsException;
+
+    WorkoutTask createWorkoutTaskCheckUser(
+        Long userId,
+        Long setId,
+        String title,
+        WorkoutTaskObjectiveType objectiveType,
+        Integer objectiveReps,
+        Integer objectiveTimeSecs,
+        String cardColorHex
+    ) throws ObjectAlreadyExistsException;
 
     WorkoutTask updateWorkoutTask(WorkoutTask updatedTask) throws ObjectNotFoundException, InvalidWorkoutTaskIndexException;
 
+    WorkoutTask updateWorkoutTaskCheckUser(WorkoutTask updatedTask, Long userId) throws ObjectNotFoundException, InvalidWorkoutTaskIndexException;
+
     Boolean deleteWorkoutTaskById(Long id);
 
+    Boolean deleteWorkoutTaskByIdCheckUser(Long id, Long userId);
+
     List<WorkoutTask> getAllWorkoutTasksBySetId(Long setId, boolean orderByIndex);
+
+    List<WorkoutTask> getAllWorkoutTasksBySetIdCheckUser(Long setId, Long userId, boolean orderByIndex);
+
     WorkoutTask getWorkoutTaskById(Long id);
+
+    WorkoutTask getWorkoutTaskByIdCheckUser(Long id, Long userId);
 }
 
 
@@ -63,12 +90,13 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutSet createWorkoutSet(
+        Long userId,
         String title,
         String cardColorHex
     ) throws ObjectAlreadyExistsException {
         var newSet = new WorkoutSet(
             null,
-            null,
+            userId,
             null,
             title,
             cardColorHex
@@ -79,7 +107,7 @@ class WorkoutServiceImpl implements WorkoutService {
 
     @Override
     public WorkoutSet updateWorkoutSet(WorkoutSet updatedSet) throws ObjectNotFoundException {
-        if (!setRepository.existsById(updatedSet.getId())) {
+        if (!setRepository.existsByIdAndUserId(updatedSet.getId(), updatedSet.getUserId())) {
             throw new ObjectNotFoundException("WorkoutSet");
         }
 
@@ -98,8 +126,24 @@ class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
+    public Boolean deleteWorkoutSetByIdCheckUser(Long id, Long userId) {
+        if (setRepository.existsByIdAndUserId(id, userId)) {
+            taskRepository.deleteAllBySetId(id);
+            setRepository.deleteById(id);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public List<WorkoutSet> getAllWorkoutSets() {
         return setRepository.findAll();
+    }
+
+    @Override
+    public List<WorkoutSet> getAllWorkoutSetsForUser(Long userId) {
+        return setRepository.findAllByUserId(userId);
     }
 
     @Override
@@ -107,8 +151,13 @@ class WorkoutServiceImpl implements WorkoutService {
         return setRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("WorkoutSet"));
     }
 
+    @Override
+    public WorkoutSet getWorkoutSetByIdCheckUser(Long id, Long userId) throws ObjectNotFoundException {
+        return setRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ObjectNotFoundException("WorkoutSet"));
+    }
 
 
+    //TODO move methods to separate set and task controllers
     @Override
     @Transactional
     public WorkoutTask createWorkoutTask(
@@ -131,10 +180,27 @@ class WorkoutServiceImpl implements WorkoutService {
             objectiveType, 
             objectiveReps, 
             objectiveTimeSecs, 
-            cardColorHex
+            cardColorHex //TODO color validation
         );
 
         return taskRepository.save(newTask);
+    }
+
+    @Override
+    public WorkoutTask createWorkoutTaskCheckUser(
+        Long userId,
+        Long setId,
+        String title,
+        WorkoutTaskObjectiveType objectiveType,
+        Integer objectiveReps,
+        Integer objectiveTimeSecs,
+        String cardColorHex
+    ) throws ObjectAlreadyExistsException {
+        if (!setRepository.existsByIdAndUserId(setId, userId)) {
+            throw new ObjectNotFoundException("WorkoutSet");
+        }
+
+        return this.createWorkoutTask(setId, title, objectiveType, objectiveReps, objectiveTimeSecs, cardColorHex);
     }
 
     @Override
@@ -185,6 +251,15 @@ class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
+    public WorkoutTask updateWorkoutTaskCheckUser(WorkoutTask updatedTask, Long userId) throws ObjectNotFoundException, InvalidWorkoutTaskIndexException {
+        if (!setRepository.existsByIdAndUserId(updatedTask.getSetId(), userId)) {
+            throw new ObjectNotFoundException("WorkoutSet");
+        }
+
+        return this.updateWorkoutTask(updatedTask);
+    }
+
+    @Override
     @Transactional
     public Boolean deleteWorkoutTaskById(Long id) {
         if (taskRepository.existsById(id)) {
@@ -206,6 +281,16 @@ class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
+    public Boolean deleteWorkoutTaskByIdCheckUser(Long id, Long userId) {
+        var task = taskRepository.findById(id);
+        if (task.map(t -> t.getSet().getUserId() == userId).orElse(false)) {
+            return this.deleteWorkoutTaskById(id);
+        } else {
+            return false;
+        }
+    }
+
+    @Override
     public List<WorkoutTask> getAllWorkoutTasksBySetId(Long setId, boolean orderByIndex) {
         if (orderByIndex) {
             return taskRepository.findAllBySetIdOrderByIndex(setId);
@@ -215,8 +300,24 @@ class WorkoutServiceImpl implements WorkoutService {
     }
 
     @Override
-    public WorkoutTask getWorkoutTaskById(Long id) throws ObjectNotFoundException {
-        return taskRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("WorkoutTask"));
+    public List<WorkoutTask> getAllWorkoutTasksBySetIdCheckUser(Long setId, Long userId, boolean orderByIndex) {
+        if (setRepository.existsByIdAndUserId(setId, userId)) {
+            return this.getAllWorkoutTasksBySetId(setId, orderByIndex);
+        }
+
+        return List.of();
     }
 
+    @Override
+    public WorkoutTask getWorkoutTaskById(Long id) throws ObjectNotFoundException {
+        return taskRepository.findById(id)
+                    .orElseThrow(() -> new ObjectNotFoundException("WorkoutTask"));
+    }
+
+    @Override
+    public WorkoutTask getWorkoutTaskByIdCheckUser(Long id, Long userId) {
+        return taskRepository.findById(id)
+                    .filter(t -> t.getSet().getUserId() == userId)
+                    .orElseThrow(() -> new ObjectNotFoundException("WorkoutTask"));
+    }
 }
