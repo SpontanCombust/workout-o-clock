@@ -1,4 +1,4 @@
-package com.spontancombust.workoutoclock.dto;
+package com.spontancombust.workoutoclock.dto.common;
 
 import com.spontancombust.workoutoclock.model.WorkoutTaskObjectiveType;
 

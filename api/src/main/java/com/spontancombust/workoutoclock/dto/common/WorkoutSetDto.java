@@ -1,4 +1,4 @@
-package com.spontancombust.workoutoclock.dto;
+package com.spontancombust.workoutoclock.dto.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -10,7 +10,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SignInRequestDto {
-    private String email;
-    private String password;
+public class WorkoutSetDto {
+    private Long id;
+    private String title;
+    private String cardColorHex;
 }

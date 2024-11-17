@@ -1,4 +1,4 @@
-package com.spontancombust.workoutoclock.dto;
+package com.spontancombust.workoutoclock.dto.common;
 
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;

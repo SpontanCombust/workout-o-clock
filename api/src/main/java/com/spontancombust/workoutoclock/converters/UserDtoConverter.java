@@ -1,6 +1,6 @@
 package com.spontancombust.workoutoclock.converters;
 
-import com.spontancombust.workoutoclock.dto.UserDto;
+import com.spontancombust.workoutoclock.dto.common.UserDto;
 import com.spontancombust.workoutoclock.model.User;
 
 

@@ -1,9 +1,9 @@
 package com.spontancombust.workoutoclock.converters;
 
-import com.spontancombust.workoutoclock.dto.WorkoutTaskDto;
-import com.spontancombust.workoutoclock.dto.WorkoutTaskObjectiveDto;
-import com.spontancombust.workoutoclock.dto.WorkoutTaskRepsObjectiveDto;
-import com.spontancombust.workoutoclock.dto.WorkoutTaskTimeObjectiveDto;
+import com.spontancombust.workoutoclock.dto.common.WorkoutTaskDto;
+import com.spontancombust.workoutoclock.dto.common.WorkoutTaskObjectiveDto;
+import com.spontancombust.workoutoclock.dto.common.WorkoutTaskRepsObjectiveDto;
+import com.spontancombust.workoutoclock.dto.common.WorkoutTaskTimeObjectiveDto;
 import com.spontancombust.workoutoclock.model.WorkoutTask;
 
 

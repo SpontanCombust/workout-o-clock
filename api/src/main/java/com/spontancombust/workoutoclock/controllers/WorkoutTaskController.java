@@ -16,10 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
 
 import com.spontancombust.workoutoclock.converters.Converters;
-import com.spontancombust.workoutoclock.dto.WorkoutTaskDetailsDto;
-import com.spontancombust.workoutoclock.dto.WorkoutTaskDto;
-import com.spontancombust.workoutoclock.dto.WorkoutTaskRepsObjectiveDto;
-import com.spontancombust.workoutoclock.dto.WorkoutTaskTimeObjectiveDto;
+import com.spontancombust.workoutoclock.dto.WorkoutTaskControllerDtos.CreateWorkoutTaskRequestDto;
+import com.spontancombust.workoutoclock.dto.WorkoutTaskControllerDtos.UpdateWorkoutTaskRequestDto;
+import com.spontancombust.workoutoclock.dto.common.WorkoutTaskDto;
+import com.spontancombust.workoutoclock.dto.common.WorkoutTaskRepsObjectiveDto;
+import com.spontancombust.workoutoclock.dto.common.WorkoutTaskTimeObjectiveDto;
 import com.spontancombust.workoutoclock.model.WorkoutTask;
 import com.spontancombust.workoutoclock.model.WorkoutTaskObjectiveType;
 import com.spontancombust.workoutoclock.security.UserPrincipal;
@@ -39,7 +40,7 @@ public class WorkoutTaskController {
     public ResponseEntity<WorkoutTaskDto> createWorkoutTask(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long setId, 
-        @RequestBody WorkoutTaskDetailsDto newTaskDetailsDto
+        @RequestBody CreateWorkoutTaskRequestDto newTaskDetailsDto
     ) {
         WorkoutTaskObjectiveType objectiveType = null;
         Integer objectiveReps = null;
@@ -74,7 +75,7 @@ public class WorkoutTaskController {
     public ResponseEntity<WorkoutTaskDto> updateWorkoutTask(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long setId, @PathVariable Long id, 
-        @RequestBody WorkoutTaskDetailsDto updatedTaskDetailsDto
+        @RequestBody UpdateWorkoutTaskRequestDto updatedTaskDetailsDto
     ) {
         WorkoutTaskObjectiveType objectiveType = null;
         Integer objectiveReps = null;

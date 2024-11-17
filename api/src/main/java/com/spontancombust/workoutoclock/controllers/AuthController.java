@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.spontancombust.workoutoclock.converters.Converters;
-import com.spontancombust.workoutoclock.dto.SignInRequestDto;
-import com.spontancombust.workoutoclock.dto.SignInResponseDto;
-import com.spontancombust.workoutoclock.dto.SignUpRequestDto;
-import com.spontancombust.workoutoclock.dto.UserDto;
+import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignInRequestDto;
+import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignInResponseDto;
+import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignUpRequestDto;
+import com.spontancombust.workoutoclock.dto.common.UserDto;
 import com.spontancombust.workoutoclock.services.AuthService;
 
 import lombok.RequiredArgsConstructor;
