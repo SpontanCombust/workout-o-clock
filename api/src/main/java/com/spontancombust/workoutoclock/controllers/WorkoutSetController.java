@@ -3,7 +3,6 @@ package com.spontancombust.workoutoclock.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -21,7 +20,7 @@ import com.spontancombust.workoutoclock.dto.WorkoutSetDetailsDto;
 import com.spontancombust.workoutoclock.dto.WorkoutSetDto;
 import com.spontancombust.workoutoclock.model.WorkoutSet;
 import com.spontancombust.workoutoclock.security.UserPrincipal;
-import com.spontancombust.workoutoclock.services.WorkoutService;
+import com.spontancombust.workoutoclock.services.WorkoutSetService;
 
 
 
@@ -29,8 +28,8 @@ import com.spontancombust.workoutoclock.services.WorkoutService;
 @RequestMapping("/workoutSets")
 @RequiredArgsConstructor
 public class WorkoutSetController {
-    @Autowired
-    private final WorkoutService workoutService;
+    
+    private final WorkoutSetService workoutService;
 
 
     @PostMapping("/")

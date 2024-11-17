@@ -3,7 +3,6 @@ package com.spontancombust.workoutoclock.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +23,7 @@ import com.spontancombust.workoutoclock.dto.WorkoutTaskTimeObjectiveDto;
 import com.spontancombust.workoutoclock.model.WorkoutTask;
 import com.spontancombust.workoutoclock.model.WorkoutTaskObjectiveType;
 import com.spontancombust.workoutoclock.security.UserPrincipal;
-import com.spontancombust.workoutoclock.services.WorkoutService;
+import com.spontancombust.workoutoclock.services.WorkoutTaskService;
 
 
 
@@ -33,8 +32,7 @@ import com.spontancombust.workoutoclock.services.WorkoutService;
 @RequiredArgsConstructor
 public class WorkoutTaskController {
     
-    @Autowired
-    private final WorkoutService workoutService;
+    private final WorkoutTaskService workoutService;
 
 
     @PostMapping("/")
@@ -113,7 +111,7 @@ public class WorkoutTaskController {
     @DeleteMapping("/{id}")
     public ResponseEntity<Boolean> deleteWorkoutTask(
         @AuthenticationPrincipal UserPrincipal principal,
-        @PathVariable Long id
+        @PathVariable Long setId, @PathVariable Long id
     ) {
         var deleted = workoutService.deleteWorkoutTaskByIdCheckUser(id, principal.getUserId());
         return ResponseEntity.ok(deleted);
@@ -134,7 +132,7 @@ public class WorkoutTaskController {
     @GetMapping("/{id}")
     public ResponseEntity<WorkoutTaskDto> getWorkoutTaskById(
         @AuthenticationPrincipal UserPrincipal principal,
-        @PathVariable Long id
+        @PathVariable Long setId, @PathVariable Long id
     ) {
         var workoutTaskModel = workoutService.getWorkoutTaskByIdCheckUser(id, principal.getUserId());
         var workoutTaskDto = Converters.workoutTaskDto.fromModel(workoutTaskModel);
