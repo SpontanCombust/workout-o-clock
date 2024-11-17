@@ -1,7 +1,11 @@
 #!/bin/bash
 
-source ../.env
-cd ../api/
+CWD=$(pwd)
+ENV_PATH=$(dirname "$0")/../.env
+API_DIR=$(dirname "$0")/../api
+
+source $ENV_PATH
+cd $API_DIR
 
 java -jar \
     -Xdebug \
