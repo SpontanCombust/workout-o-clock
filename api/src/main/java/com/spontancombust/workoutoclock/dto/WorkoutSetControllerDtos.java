@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.spontancombust.workoutoclock.validators.ValidColorHex;
+
 
 public class WorkoutSetControllerDtos {
     @Data
@@ -12,7 +14,10 @@ public class WorkoutSetControllerDtos {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class CreateWorkoutSetRequestDto {
+
         private String title;
+
+        @ValidColorHex
         private String cardColorHex;
     }
 }

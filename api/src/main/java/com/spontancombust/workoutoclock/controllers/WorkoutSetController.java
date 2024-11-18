@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 
 import com.spontancombust.workoutoclock.converters.Converters;
 import com.spontancombust.workoutoclock.dto.WorkoutSetControllerDtos.CreateWorkoutSetRequestDto;
@@ -35,7 +36,7 @@ public class WorkoutSetController {
     @PostMapping("/")
     public ResponseEntity<WorkoutSetDto> createWorkoutSet(
         @AuthenticationPrincipal UserPrincipal principal, 
-        @RequestBody CreateWorkoutSetRequestDto newSetDetailsDto
+        @Valid @RequestBody CreateWorkoutSetRequestDto newSetDetailsDto
     ) {   
         var newSetModel = workoutService.createWorkoutSet(
             principal.getUserId(),
@@ -50,7 +51,7 @@ public class WorkoutSetController {
     public ResponseEntity<WorkoutSetDto> updateWorkoutSet(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long id, 
-        @RequestBody CreateWorkoutSetRequestDto updatedSetDetailsDto
+        @Valid @RequestBody CreateWorkoutSetRequestDto updatedSetDetailsDto
     ) {
         var updatedSetModel = new WorkoutSet(
             id,

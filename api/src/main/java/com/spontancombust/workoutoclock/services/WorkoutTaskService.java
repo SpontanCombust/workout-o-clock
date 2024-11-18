@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import lombok.RequiredArgsConstructor;
 
 import com.spontancombust.workoutoclock.exceptions.InvalidWorkoutTaskIndexException;
 import com.spontancombust.workoutoclock.exceptions.ObjectAlreadyExistsException;
@@ -12,8 +13,6 @@ import com.spontancombust.workoutoclock.model.WorkoutTask;
 import com.spontancombust.workoutoclock.model.WorkoutTaskObjectiveType;
 import com.spontancombust.workoutoclock.repositories.WorkoutSetRepository;
 import com.spontancombust.workoutoclock.repositories.WorkoutTaskRepository;
-
-import lombok.RequiredArgsConstructor;
 
 
 public interface WorkoutTaskService {
@@ -85,8 +84,8 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
             title, 
             objectiveType, 
             objectiveReps, 
-            objectiveTimeSecs, 
-            cardColorHex //TODO color validation
+            objectiveTimeSecs,
+            cardColorHex
         );
 
         return taskRepository.save(newTask);

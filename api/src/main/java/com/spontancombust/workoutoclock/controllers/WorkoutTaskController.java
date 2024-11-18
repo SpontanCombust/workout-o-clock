@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 
 import com.spontancombust.workoutoclock.converters.Converters;
 import com.spontancombust.workoutoclock.dto.WorkoutTaskControllerDtos.CreateWorkoutTaskRequestDto;
@@ -40,7 +41,7 @@ public class WorkoutTaskController {
     public ResponseEntity<WorkoutTaskDto> createWorkoutTask(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long setId, 
-        @RequestBody CreateWorkoutTaskRequestDto newTaskDetailsDto
+        @Valid @RequestBody CreateWorkoutTaskRequestDto newTaskDetailsDto
     ) {
         WorkoutTaskObjectiveType objectiveType = null;
         Integer objectiveReps = null;
@@ -55,7 +56,6 @@ public class WorkoutTaskController {
             objectiveType = WorkoutTaskObjectiveType.TIME;
             objectiveTimeSecs = timeObjective.getTimeSeconds();
         }
-        //TODO exception for invalid task objective
 
         var newTaskModel = workoutService.createWorkoutTaskCheckUser(
             principal.getUserId(),
@@ -75,7 +75,7 @@ public class WorkoutTaskController {
     public ResponseEntity<WorkoutTaskDto> updateWorkoutTask(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long setId, @PathVariable Long id, 
-        @RequestBody UpdateWorkoutTaskRequestDto updatedTaskDetailsDto
+        @Valid @RequestBody UpdateWorkoutTaskRequestDto updatedTaskDetailsDto
     ) {
         WorkoutTaskObjectiveType objectiveType = null;
         Integer objectiveReps = null;

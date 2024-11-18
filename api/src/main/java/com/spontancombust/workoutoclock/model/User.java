@@ -3,7 +3,6 @@ package com.spontancombust.workoutoclock.model;
 import java.util.Date;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,6 +15,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import com.spontancombust.workoutoclock.validators.ValidEmail;
 
 
 @Entity
@@ -37,6 +38,7 @@ public class User {
 
     @Column(name = "email")
     @NotNull
+    @ValidEmail
     private String email;
 
     @Column(name = "password")
