@@ -145,7 +145,7 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
 
             var savedUpdatedTask = taskRepository.saveAll(allTasksSorted)
                                                 .stream()
-                                                .filter(t -> t.getId() == updatedTask.getId())
+                                                .filter(t -> t.getId().equals(updatedTask.getId()))
                                                 .findFirst()
                                                 .get();
 
@@ -188,7 +188,7 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
     @Override
     public Boolean deleteWorkoutTaskByIdCheckUser(Long id, Long userId) {
         var task = taskRepository.findById(id);
-        if (task.map(t -> t.getSet().getUserId() == userId).orElse(false)) {
+        if (task.map(t -> t.getSet().getUserId().equals(userId)).orElse(false)) {
             return this.deleteWorkoutTaskById(id);
         } else {
             return false;
@@ -221,9 +221,8 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
 
     @Override
     public WorkoutTask getWorkoutTaskByIdCheckUser(Long id, Long userId) {
-        //FIXME
         return taskRepository.findById(id)
-                    .filter(t -> t.getSet().getUserId() == userId)
+                    .filter(t -> t.getSet().getUserId().equals(userId))
                     .orElseThrow(() -> new ObjectNotFoundException("WorkoutTask"));
     }
 }
