@@ -28,7 +28,7 @@ public class WorkoutTaskDtoConverter implements DtoConverter<WorkoutTask, Workou
 
         return new WorkoutTaskDto(
             model.getId(),
-            Converters.workoutSetDto.fromModel(model.getSet()),
+            model.getSetId(),
             model.getIndex(),
             model.getTitle(),
             objective,

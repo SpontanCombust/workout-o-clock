@@ -16,7 +16,7 @@ public class WorkoutTaskDto {
 
     private Long id;
 
-    private WorkoutSetDto set; //TODO replace with just ID, make use of HATEOAS instead
+    private Long setId;
 
     private Integer index;
 
