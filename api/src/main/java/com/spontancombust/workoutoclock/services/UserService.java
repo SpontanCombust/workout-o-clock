@@ -1,11 +1,11 @@
 package com.spontancombust.workoutoclock.services;
 
 import org.springframework.stereotype.Service;
+import lombok.AllArgsConstructor;
+
 import com.spontancombust.workoutoclock.exceptions.ObjectNotFoundException;
 import com.spontancombust.workoutoclock.model.User;
 import com.spontancombust.workoutoclock.repositories.UserRepository;
-
-import lombok.AllArgsConstructor;
 
 
 

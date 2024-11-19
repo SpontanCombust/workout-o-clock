@@ -36,7 +36,6 @@ public class WorkoutTask {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "set_id", insertable = false, updatable = false)
-    @NotNull
     private WorkoutSet set;
 
     @Column(name = "index")
