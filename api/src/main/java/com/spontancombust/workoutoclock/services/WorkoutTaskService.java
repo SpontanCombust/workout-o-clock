@@ -124,24 +124,15 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
             if (updatedTask.getIndex() < 0 || updatedTask.getIndex() >= allTasksSorted.size()) {
                 throw new InvalidWorkoutTaskIndexException(updatedTask.getIndex());
             }
-    
 
-            // bubbling of the workout task towards the destination index //
 
-            var shift = updatedTask.getIndex() < currentTaskIndex ? -1 : 1;
-            for (int i = currentTaskIndex + shift; i != updatedTask.getIndex(); i += shift) {
-                var prev = allTasksSorted.get(i - shift);
-                var curr = allTasksSorted.get(i);
+            allTasksSorted.removeIf(t -> t.getId().equals(updatedTask.getId()));
+            allTasksSorted.add(updatedTask.getIndex(), updatedTask);
 
-                var tmp = prev.getIndex();
-                prev.setIndex(curr.getIndex());
-                curr.setIndex(tmp);
+            for(int i = 0; i < allTasksSorted.size(); i += 1) {
+                allTasksSorted.get(i).setIndex(i);
             }
-
-            // at this point all tasks are shifted to their appropriate position
-            // only thing left is to overwrite the target task in its entirety
-            allTasksSorted.set(updatedTask.getIndex(), updatedTask);
-
+            
 
             var savedUpdatedTask = taskRepository.saveAll(allTasksSorted)
                                                 .stream()
