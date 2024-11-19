@@ -3,12 +3,16 @@ package com.spontancombust.workoutoclock.controllers;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.springframework.core.env.Environment;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import lombok.AllArgsConstructor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.spontancombust.workoutoclock.exceptions.EmailTakenException;
 import com.spontancombust.workoutoclock.exceptions.InvalidWorkoutTaskIndexException;
 import com.spontancombust.workoutoclock.exceptions.ObjectAlreadyExistsException;
@@ -16,7 +20,11 @@ import com.spontancombust.workoutoclock.exceptions.ObjectNotFoundException;
 
 
 @ControllerAdvice
+@AllArgsConstructor
 public class ControllerAdvisor {
+
+    private final Environment env;
+
 
     @ExceptionHandler(ObjectNotFoundException.class)
     public ResponseEntity<Object> handleObjectNotFoundException(ObjectNotFoundException ex) {
@@ -58,6 +66,39 @@ public class ControllerAdvisor {
                     .message("Data validation failed")
                     .field("fieldErrors", fieldErrors)
                     .build();
+    }
+
+    @ExceptionHandler(JsonProcessingException.class)
+    public ResponseEntity<Object> handleJsonSerializationExceptions(JsonProcessingException ex) {
+        return new ResponseEntityBuilder(HttpStatus.BAD_REQUEST)
+                    .message(ex.getMessage())
+                    .build();
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Object> handleBadCredendialsException(BadCredentialsException ex) {
+        return new ResponseEntityBuilder(HttpStatus.UNAUTHORIZED)
+                    .message(ex.getMessage())
+                    .build();
+    }
+
+
+
+    // The most generic handler for everything that doesn't get caught
+    // All more specific errors should be placed ABOVE this one
+    @ExceptionHandler(Exception.class)
+    public ResponseEntity<Object> handleGenericException(Exception ex) {
+        var b = new ResponseEntityBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .message("Unexpected server error");
+
+        // obscure the true nature of an error outside of dev environment
+        if (this.env.matchesProfiles("dev")) {
+            b = b.field("exception", ex.getClass().getName())
+                .field("error", ex.getMessage())        
+                .field("stackTrace", ex.getStackTrace());
+        }
+
+        return b.build();
     }
 }
 
