@@ -21,7 +21,7 @@ public class JwtService {
     public String issueToken(UserPrincipal principal) {
         return JWT.create()
                 .withSubject(String.valueOf(principal.getUserId()))
-                .withExpiresAt(Instant.now().plus(Duration.ofSeconds(jwtProperties.getDuration()))) //TODO refresh token function
+                .withExpiresAt(Instant.now().plus(Duration.ofSeconds(jwtProperties.getDuration())))
                 .withClaim(this.EMAIL_CLAIM_NAME, principal.getEmail())
                 // .withClaim(this.AUTHORITIES_CLAIM_NAME, principal.getAuthorities().stream().toList())
                 .sign(Algorithm.HMAC256(jwtProperties.getSecretKey()));
