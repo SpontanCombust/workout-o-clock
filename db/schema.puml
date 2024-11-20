@@ -9,9 +9,9 @@
 table(user) {
     primary_key(user_id): BIGINT NOT NULL
     --
-    column(username): VARCHAR(255) NOT NULL
-    column(email): VARCHAR(255) NOT NULL
-    column(password): VARCHAR(MAX) NOT NULL
+    column(username): TEXT NOT NULL
+    column(email): TEXT NOT NULL
+    column(password): TEXT NOT NULL
     column(created_date): DATETIME NOT NULL
     column(modified_date): DATETIME
 }

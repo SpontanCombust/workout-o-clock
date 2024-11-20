@@ -119,7 +119,7 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
         var currentTaskIndex = this.getWorkoutTaskById(updatedTask.getId()).getIndex();
 
         // if an index of the task was changed the entire set has to account for that
-        if (updatedTask.getIndex() != currentTaskIndex) {
+        if (!updatedTask.getIndex().equals(currentTaskIndex)) {
             var allTasksSorted = this.getAllWorkoutTasksBySetId(updatedTask.getSet().getId(), true);
 
             if (updatedTask.getIndex() < 0 || updatedTask.getIndex() >= allTasksSorted.size()) {
