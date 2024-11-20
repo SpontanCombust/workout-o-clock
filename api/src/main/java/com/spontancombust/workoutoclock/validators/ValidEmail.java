@@ -10,28 +10,31 @@ import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
+import lombok.NoArgsConstructor;
 
 
-@Constraint(validatedBy = EmailValidator.class)
+@Constraint(validatedBy = ValidEmail.EmailValidator.class)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidEmail {
     String message() default "Invalid e-mail address";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
-}
 
-class EmailValidator implements ConstraintValidator<ValidEmail, String> {
-    private static final String REGEX = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
-    private final Pattern pattern = Pattern.compile(REGEX);
 
-    @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null || value.isEmpty()) {
-            return false;
-        }
-
-        return this.pattern.matcher(value).matches();
-    }
+    @NoArgsConstructor
+    public static class EmailValidator implements ConstraintValidator<ValidEmail, String> {
+        private static final String REGEX = "^[_A-Za-z0-9-]+(\\.[_A-Za-z0-9-]+)*@[A-Za-z0-9]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
+        private final Pattern pattern = Pattern.compile(REGEX);
     
+        @Override
+        public boolean isValid(String value, ConstraintValidatorContext context) {
+            if (value == null || value.isEmpty()) {
+                return false;
+            }
+    
+            return this.pattern.matcher(value).matches();
+        }
+    }
 }
+

@@ -10,28 +10,32 @@ import jakarta.validation.Constraint;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
 import jakarta.validation.Payload;
+import lombok.NoArgsConstructor;
 
 
-@Constraint(validatedBy = ColorHexValidator.class)
+@Constraint(validatedBy = ValidColorHex.ColorHexValidator.class)
 @Target({ ElementType.FIELD, ElementType.PARAMETER })
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ValidColorHex {
     String message() default "Invalid color format, expected hexadecimal RGB or RGBA";
     Class<?>[] groups() default {};
     Class<? extends Payload>[] payload() default {};
-}
 
-class ColorHexValidator implements ConstraintValidator<ValidColorHex, String> {
-    private static final String REGEX = "^(?:[0-9a-fA-F]{2}){3,4}$";
-    private final Pattern pattern = Pattern.compile(REGEX);
 
-    @Override
-    public boolean isValid(String value, ConstraintValidatorContext context) {
-        if (value == null || value.isEmpty()) {
-            return false;
-        }
-
-        return this.pattern.matcher(value).matches();
-    }
+    @NoArgsConstructor
+    public static class ColorHexValidator implements ConstraintValidator<ValidColorHex, String> {
+        private static final String REGEX = "^(?:[0-9a-fA-F]{2}){3,4}$";
+        private final Pattern pattern = Pattern.compile(REGEX);
     
+        @Override
+        public boolean isValid(String value, ConstraintValidatorContext context) {
+            if (value == null || value.isEmpty()) {
+                return false;
+            }
+    
+            return this.pattern.matcher(value).matches();
+        }
+        
+    }
 }
+

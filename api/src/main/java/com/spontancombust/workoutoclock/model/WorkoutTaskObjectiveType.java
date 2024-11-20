@@ -2,6 +2,7 @@ package com.spontancombust.workoutoclock.model;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
+import lombok.NoArgsConstructor;
 
 
 public enum WorkoutTaskObjectiveType {
@@ -33,6 +34,7 @@ public enum WorkoutTaskObjectiveType {
     }
 }
 
+@NoArgsConstructor
 @Converter(autoApply = true)
 class WorkoutTaskObjectiveTypeConverter implements AttributeConverter<WorkoutTaskObjectiveType, String> {
     @Override
