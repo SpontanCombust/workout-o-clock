@@ -21,6 +21,10 @@ public class ControllerAdvisor {
 
     private final Environment env;
 
+    private boolean isDevEnv() {
+        return this.env.matchesProfiles("dev");
+    }
+
 
     @ExceptionHandler(ObjectNotFoundException.class)
     public ResponseEntity<Object> handleObjectNotFoundException(ObjectNotFoundException ex) {
@@ -68,7 +72,7 @@ public class ControllerAdvisor {
     public ResponseEntity<Object> handleJsonSerializationExceptions(JsonProcessingException ex) {
         return new ResponseEntityBuilder(HttpStatus.BAD_REQUEST)
                     .message(ex.getMessage())
-                    .build();
+                    .build(this.isDevEnv());
     }
 
     @ExceptionHandler(BadCredentialsException.class)
@@ -80,32 +84,24 @@ public class ControllerAdvisor {
 
     @ExceptionHandler(InvalidRefreshTokenException.class)
     public ResponseEntity<Object> handleRefreshTokenExpiredException(InvalidRefreshTokenException ex) {
-        var b = new ResponseEntityBuilder(HttpStatus.FORBIDDEN);
-
-        if (this.env.matchesProfiles("dev")) {
-            b = b.message(ex.getMessage());
-        }
-                    
-        return b.build();
+        return new ResponseEntityBuilder(HttpStatus.FORBIDDEN)
+                    .message(ex.getMessage())
+                    .build(this.isDevEnv());
     }
-
 
 
     // The most generic handler for everything that doesn't get caught
     // All more specific errors should be placed ABOVE this one
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGenericException(Exception ex) {
-        var b = new ResponseEntityBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .message("Unexpected server error");
+        // stack trace 
+        ex.printStackTrace();
 
-        // obscure the true nature of an error outside of dev environment
-        if (this.env.matchesProfiles("dev")) {
-            b = b.field("exception", ex.getClass().getName())
-                .field("error", ex.getMessage())        
-                .field("stackTrace", ex.getStackTrace());
-        }
-
-        return b.build();
+        return new ResponseEntityBuilder(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .message("Unexpected server error")
+                    .field("exception", ex.getClass().getName())
+                    .field("error", ex.getMessage())
+                    .build(this.isDevEnv());
     }
 }
 
@@ -131,10 +127,14 @@ class ResponseEntityBuilder {
     }
 
 
-    public ResponseEntity<Object> build() {
+    public ResponseEntity<Object> build(boolean showBody) {
         return new ResponseEntity<>(
-            this.body,
+            showBody ? this.body : null,
             this.status
         );
+    }
+
+    public ResponseEntity<Object> build() {
+        return this.build(true);
     }
 }
