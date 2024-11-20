@@ -1,4 +1,4 @@
-package com.spontancombust.workoutoclock.controllers;
+package com.spontancombust.workoutoclock.exceptions;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,11 +13,6 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import lombok.AllArgsConstructor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.spontancombust.workoutoclock.exceptions.EmailTakenException;
-import com.spontancombust.workoutoclock.exceptions.InvalidRefreshTokenException;
-import com.spontancombust.workoutoclock.exceptions.InvalidWorkoutTaskIndexException;
-import com.spontancombust.workoutoclock.exceptions.ObjectAlreadyExistsException;
-import com.spontancombust.workoutoclock.exceptions.ObjectNotFoundException;
 
 
 @ControllerAdvice
