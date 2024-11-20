@@ -45,6 +45,7 @@ public class WebSecurityConfig {
                 // application endpoints
                 .requestMatchers("/auth/signin").permitAll()
                 .requestMatchers("/auth/signup").permitAll()
+                .requestMatchers("/auth/refresh").permitAll()
                 .anyRequest().authenticated())
             .build();
     }

@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.spontancombust.workoutoclock.exceptions.EmailTakenException;
+import com.spontancombust.workoutoclock.exceptions.InvalidRefreshTokenException;
 import com.spontancombust.workoutoclock.exceptions.InvalidWorkoutTaskIndexException;
 import com.spontancombust.workoutoclock.exceptions.ObjectAlreadyExistsException;
 import com.spontancombust.workoutoclock.exceptions.ObjectNotFoundException;
@@ -80,6 +81,17 @@ public class ControllerAdvisor {
         return new ResponseEntityBuilder(HttpStatus.UNAUTHORIZED)
                     .message(ex.getMessage())
                     .build();
+    }
+
+    @ExceptionHandler(InvalidRefreshTokenException.class)
+    public ResponseEntity<Object> handleRefreshTokenExpiredException(InvalidRefreshTokenException ex) {
+        var b = new ResponseEntityBuilder(HttpStatus.FORBIDDEN);
+
+        if (this.env.matchesProfiles("dev")) {
+            b = b.message(ex.getMessage());
+        }
+                    
+        return b.build();
     }
 
 

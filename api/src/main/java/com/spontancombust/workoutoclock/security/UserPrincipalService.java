@@ -5,6 +5,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
 
+import com.spontancombust.workoutoclock.model.User;
 // import com.spontancombust.workoutoclock.model.Role;
 import com.spontancombust.workoutoclock.services.UserService;
 
@@ -18,7 +19,10 @@ public class UserPrincipalService implements UserDetailsService {
     @Override
     public UserPrincipal loadUserByUsername(String username) throws UsernameNotFoundException {
         var user = userService.getByEmail(username);
-
+        return this.loadUserByModel(user);
+    }
+    
+    public UserPrincipal loadUserByModel(User user) {
         return UserPrincipal.builder()
             .userId(user.getId())
             .email(user.getEmail())
@@ -26,5 +30,4 @@ public class UserPrincipalService implements UserDetailsService {
             .password(user.getPassword())
             .build();
     }
-    
 }

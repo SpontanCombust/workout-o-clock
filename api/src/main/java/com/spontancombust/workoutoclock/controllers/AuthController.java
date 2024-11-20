@@ -10,8 +10,11 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import com.spontancombust.workoutoclock.converters.Converters;
+import com.spontancombust.workoutoclock.dto.AuthControllerDtos.RefreshRequestDto;
+import com.spontancombust.workoutoclock.dto.AuthControllerDtos.RefreshResponseDto;
 import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignInRequestDto;
 import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignInResponseDto;
+import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignOutRequestDto;
 import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignUpRequestDto;
 import com.spontancombust.workoutoclock.dto.common.UserDto;
 import com.spontancombust.workoutoclock.services.AuthService;
@@ -25,8 +28,8 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<SignInResponseDto> signIn(@Valid @RequestBody SignInRequestDto req) {
-        var token = authService.signIn(req.getEmail(), req.getPassword());
-        var responseDto = new SignInResponseDto(token);
+        var tokens = authService.signIn(req.getEmail(), req.getPassword());
+        var responseDto = new SignInResponseDto(tokens.getAccessToken(), tokens.getRefreshToken());
         return ResponseEntity.ok(responseDto);
     }
 
@@ -37,6 +40,20 @@ public class AuthController {
         return ResponseEntity.ok(userDto);
     }
 
+    @PostMapping("/refresh")
+    public ResponseEntity<RefreshResponseDto> refresh(@Valid @RequestBody RefreshRequestDto req) {
+        var tokens = authService.refreshAuth(req.getRefreshToken());
+        var responseDto = new RefreshResponseDto(tokens.getAccessToken(), tokens.getRefreshToken());
+        return ResponseEntity.ok(responseDto);
+    }
+
+    @PostMapping("/signout")
+    public ResponseEntity<Void> signOut(@Valid @RequestBody SignOutRequestDto req) {
+        authService.signOut(req.getRefreshToken());
+        return ResponseEntity.ok(null);
+    }
+
+    
     @GetMapping("/")
     public ResponseEntity<UserDto> getSignedInUser() {
         var user = authService.getSignedInUser();

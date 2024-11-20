@@ -13,17 +13,25 @@ import org.springframework.stereotype.Service;
 import lombok.AllArgsConstructor;
 
 import com.spontancombust.workoutoclock.exceptions.EmailTakenException;
+import com.spontancombust.workoutoclock.model.RefreshToken;
+import com.spontancombust.workoutoclock.model.AuthTokenPair;
 import com.spontancombust.workoutoclock.model.User;
 import com.spontancombust.workoutoclock.repositories.UserRepository;
 import com.spontancombust.workoutoclock.security.JwtService;
+import com.spontancombust.workoutoclock.security.RefreshTokenService;
 import com.spontancombust.workoutoclock.security.UserPrincipal;
+import com.spontancombust.workoutoclock.security.UserPrincipalService;
 
 
 public interface AuthService {
-
-    String signIn(String email, String password) throws AuthenticationException;
-  
     User signUp(String email, String password, String username) throws EmailTakenException;
+
+    //TODO rate-limiting for incorrect credentials
+    AuthTokenPair signIn(String email, String password) throws AuthenticationException;
+
+    AuthTokenPair refreshAuth(String refreshToken);
+
+    void signOut(String refreshToken);
 
     //TODO change password
 
@@ -37,12 +45,16 @@ public interface AuthService {
 class AuthServiceImpl implements AuthService {
 
     private final JwtService jwtService;
+    private final RefreshTokenService refreshTokenService;
+    private final UserPrincipalService userPrincipalService;
+
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
 
 
-    public String signIn(String email, String password) throws AuthenticationException {
+    @Override
+    public AuthTokenPair signIn(String email, String password) throws AuthenticationException {
         var auth = this.authenticationManager.authenticate(
             new UsernamePasswordAuthenticationToken(email, password)
         );
@@ -50,10 +62,13 @@ class AuthServiceImpl implements AuthService {
         SecurityContextHolder.getContext().setAuthentication(auth);
         var principal = (UserPrincipal)auth.getPrincipal();
 
-        String token = jwtService.issueToken(principal);
-        return token;
+        String accessToken = this.jwtService.issueToken(principal);
+        RefreshToken refreshToken = this.refreshTokenService.issueRefreshToken(principal.getUserId());
+
+        return new AuthTokenPair(accessToken, refreshToken.getTokenString());
     }
 
+    @Override
     public User signUp(String email, String password, String username) throws EmailTakenException {
         if (this.userRepository.existsByEmail(email)) {
             throw new EmailTakenException();
@@ -72,7 +87,23 @@ class AuthServiceImpl implements AuthService {
         return savedUser;
     }
 
+    @Override
+    public AuthTokenPair refreshAuth(String refreshToken) {
+        RefreshToken newRefreshToken = this.refreshTokenService.rotateRefreshToken(refreshToken);
 
+        UserPrincipal principal = this.userPrincipalService.loadUserByModel(newRefreshToken.getUser());
+        String newAccessToken = this.jwtService.issueToken(principal);
+
+        return new AuthTokenPair(newAccessToken, newRefreshToken.getTokenString());
+    }
+
+    @Override
+    public void signOut(String refreshToken) {
+        this.refreshTokenService.invalidateRefreshToken(refreshToken);
+    }
+
+
+    @Override
     public User getSignedInUser() throws AuthenticationException {
         var auth = SecurityContextHolder.getContext().getAuthentication();
 
