@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
 import com.spontancombust.workoutoclock.converters.Converters;
+import com.spontancombust.workoutoclock.dto.AuthControllerDtos.ChangePasswordRequestDto;
 import com.spontancombust.workoutoclock.dto.AuthControllerDtos.RefreshRequestDto;
 import com.spontancombust.workoutoclock.dto.AuthControllerDtos.RefreshResponseDto;
 import com.spontancombust.workoutoclock.dto.AuthControllerDtos.SignInRequestDto;
@@ -51,6 +52,13 @@ public class AuthController {
     public ResponseEntity<Void> signOut(@Valid @RequestBody SignOutRequestDto req) {
         authService.signOut(req.getRefreshToken());
         return ResponseEntity.ok(null);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<UserDto> changePassword(@Valid @RequestBody ChangePasswordRequestDto req) {
+        var user = authService.changePassword(req.getOldPassword(), req.getNewPassword());
+        var userDto = Converters.userDto.fromModel(user);
+        return ResponseEntity.ok(userDto);
     }
 
     

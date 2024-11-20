@@ -83,4 +83,17 @@ public class AuthControllerDtos {
         private String refreshToken;
         
     }
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ChangePasswordRequestDto {
+
+        private String oldPassword;
+        
+        private String newPassword;
+        
+    }
 }

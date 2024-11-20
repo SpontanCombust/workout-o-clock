@@ -5,11 +5,14 @@ import java.util.Date;
 
 import org.springframework.security.authentication.AuthenticationCredentialsNotFoundException;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import lombok.AllArgsConstructor;
 
 import com.spontancombust.workoutoclock.exceptions.EmailTakenException;
@@ -33,10 +36,11 @@ public interface AuthService {
 
     void signOut(String refreshToken);
 
-    //TODO change password
-
 
     User getSignedInUser();
+
+    
+    User changePassword(String oldPassword, String newPassword) throws AuthenticationException;
 }
 
 
@@ -115,5 +119,36 @@ class AuthServiceImpl implements AuthService {
         var user = this.userRepository.findById(principal.getUserId()).get();
 
         return user;
+    }
+
+    @Override
+    @Transactional
+    public User changePassword(String oldPassword, String newPassword) throws AuthenticationException {
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+
+        if (auth == null) {
+            throw new AuthenticationCredentialsNotFoundException("User not logged in");
+        }
+
+        var principal = (UserPrincipal)auth.getPrincipal();
+        var user = this.userRepository.findById(principal.getUserId()).get();
+
+        if (!this.passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new BadCredentialsException("The old password is invalid");
+        }
+        if (oldPassword.equals(newPassword)) {
+            throw new BadCredentialsException("New password cannot be the same as the old one");
+        }
+
+        // we need to make sure that other devices have to re-authenticate manually after password gets changed
+        this.refreshTokenService.invalidateAllActiveRefreshTokens(user.getId());
+
+        user.setPassword(this.passwordEncoder.encode(newPassword));
+        user.setModifiedDate(Date.from(Instant.now()));
+        var savedUser = this.userRepository.save(user);
+
+        SecurityContextHolder.clearContext();
+
+        return savedUser;        
     }
 }

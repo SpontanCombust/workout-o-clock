@@ -62,6 +62,14 @@ public class RefreshTokenService {
         }
     }
 
+    public void invalidateAllActiveRefreshTokens(Long userId) {
+        var tokens = this.refreshTokenRepository.findByUserIdAndExpiredDateAfter(userId, Date.from(Instant.now()));
+        for (var t: tokens) {
+            t.setValid(false);
+        }
+        this.refreshTokenRepository.saveAll(tokens);
+    }
+
 
 
     private String generateRefreshTokenString() {
