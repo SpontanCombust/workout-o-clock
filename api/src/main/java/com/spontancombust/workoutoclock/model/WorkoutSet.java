@@ -30,12 +30,9 @@ public class WorkoutSet {
     @SequenceGenerator(name = "workout_set_gen", sequenceName = "workout_set_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "user_id")
-    @NotNull
-    private Long userId;
-
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id")
     @ManyToOne(fetch = FetchType.LAZY)
+    @NotNull
     private User user;
 
     @Column(name = "title", length = 64)

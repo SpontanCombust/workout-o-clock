@@ -12,12 +12,14 @@ import lombok.AllArgsConstructor;
 import com.spontancombust.workoutoclock.exceptions.InvalidRefreshTokenException;
 import com.spontancombust.workoutoclock.model.RefreshToken;
 import com.spontancombust.workoutoclock.repositories.RefreshTokenRepository;
+import com.spontancombust.workoutoclock.repositories.UserRepository;
 
 
 @Service
 @AllArgsConstructor
 public class RefreshTokenService {
     private final RefreshTokenRepository refreshTokenRepository;
+    private final UserRepository userRepository;
 
     private final JwtProperties jwtProperties;
     private final SecureRandom random = new SecureRandom();
@@ -25,7 +27,7 @@ public class RefreshTokenService {
 
     public RefreshToken issueRefreshToken(Long userId) {
         RefreshToken token = RefreshToken.builder()
-                                .userId(userId)
+                                .user(this.userRepository.getReferenceById(userId))
                                 .issuedDate(Date.from(Instant.now()))
                                 .expiredDate(Date.from(Instant.now().plus(Duration.ofSeconds(jwtProperties.getRefreshDuration()))))
                                 .tokenString(this.generateRefreshTokenString())
@@ -43,7 +45,7 @@ public class RefreshTokenService {
             throw new InvalidRefreshTokenException();
         }
 
-        Long userId = oldToken.getUserId();
+        Long userId = oldToken.getUser().getId();
 
         oldToken.setValid(false);
         this.refreshTokenRepository.save(oldToken);

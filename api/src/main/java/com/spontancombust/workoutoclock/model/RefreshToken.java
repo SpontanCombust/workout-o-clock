@@ -32,12 +32,9 @@ public class RefreshToken {
     @SequenceGenerator(name = "refresh_token_seq", sequenceName = "refresh_token_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "user_id")
-    @NotNull
-    private Long userId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", insertable = false, updatable = false)
+    @JoinColumn(name = "user_id")
+    @NotNull
     private User user;
 
     @Column(name = "issued_date")

@@ -25,16 +25,18 @@ import com.spontancombust.workoutoclock.dto.common.WorkoutTaskTimeObjectiveDto;
 import com.spontancombust.workoutoclock.model.WorkoutTask;
 import com.spontancombust.workoutoclock.model.WorkoutTaskObjectiveType;
 import com.spontancombust.workoutoclock.security.UserPrincipal;
+import com.spontancombust.workoutoclock.services.WorkoutSetService;
 import com.spontancombust.workoutoclock.services.WorkoutTaskService;
 
 
 
 @RestController
-@RequestMapping("/workoutSets/{setId}/tasks")
+@RequestMapping("/workoutSets/{setId}/tasks") //FIXME use kebab-case instea of camelCase
 @RequiredArgsConstructor
 public class WorkoutTaskController {
     
-    private final WorkoutTaskService workoutService;
+    private final WorkoutTaskService taskService;
+    private final WorkoutSetService setService;
 
 
     @PostMapping("/")
@@ -57,7 +59,7 @@ public class WorkoutTaskController {
             objectiveTimeSecs = timeObjective.getTimeSeconds();
         }
 
-        var newTaskModel = workoutService.createWorkoutTaskCheckUser(
+        var newTaskModel = taskService.createWorkoutTaskCheckUser(
             principal.getUserId(),
             setId,
             newTaskDetailsDto.getTitle(),
@@ -94,8 +96,7 @@ public class WorkoutTaskController {
 
         var updatedTaskModel = new WorkoutTask(
             id,
-            setId,
-            null,
+            this.setService.getWorkoutSetRefById(setId),
             updatedTaskDetailsDto.getIndex(),
             updatedTaskDetailsDto.getTitle(),
             objectiveType,
@@ -104,7 +105,7 @@ public class WorkoutTaskController {
             updatedTaskDetailsDto.getCardColorHex()
         );
 
-        updatedTaskModel = workoutService.updateWorkoutTaskCheckUser(updatedTaskModel, principal.getUserId());
+        updatedTaskModel = taskService.updateWorkoutTaskCheckUser(updatedTaskModel, principal.getUserId());
         var updatedTaskDto = Converters.workoutTaskDto.fromModel(updatedTaskModel);
         return ResponseEntity.ok(updatedTaskDto);
     }
@@ -114,7 +115,7 @@ public class WorkoutTaskController {
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long setId, @PathVariable Long id
     ) {
-        var deleted = workoutService.deleteWorkoutTaskByIdCheckUser(id, principal.getUserId());
+        var deleted = taskService.deleteWorkoutTaskByIdCheckUser(id, principal.getUserId());
         return ResponseEntity.ok(deleted);
     }
 
@@ -123,7 +124,7 @@ public class WorkoutTaskController {
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long setId
     ) {
-        var allWorkoutTasksDtos = workoutService.getAllWorkoutTasksBySetIdCheckUser(setId, principal.getUserId(), true).stream()
+        var allWorkoutTasksDtos = taskService.getAllWorkoutTasksBySetIdCheckUser(setId, principal.getUserId(), true).stream()
                                     .map(m -> Converters.workoutTaskDto.fromModel(m))
                                     .collect(Collectors.toList());
 
@@ -135,7 +136,7 @@ public class WorkoutTaskController {
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long setId, @PathVariable Long id
     ) {
-        var workoutTaskModel = workoutService.getWorkoutTaskByIdCheckUser(id, principal.getUserId());
+        var workoutTaskModel = taskService.getWorkoutTaskByIdCheckUser(id, principal.getUserId());
         var workoutTaskDto = Converters.workoutTaskDto.fromModel(workoutTaskModel);
         return ResponseEntity.ok(workoutTaskDto);
     }

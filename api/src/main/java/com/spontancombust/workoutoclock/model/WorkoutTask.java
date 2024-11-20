@@ -30,12 +30,9 @@ public class WorkoutTask {
     @SequenceGenerator(name = "workout_task_gen", sequenceName = "workout_task_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "set_id")
-    @NotNull
-    private Long setId;
-
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "set_id", insertable = false, updatable = false)
+    @JoinColumn(name = "set_id")
+    @NotNull
     private WorkoutSet set;
 
     @Column(name = "index")

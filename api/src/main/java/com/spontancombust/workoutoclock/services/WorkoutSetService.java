@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import com.spontancombust.workoutoclock.exceptions.ObjectAlreadyExistsException;
 import com.spontancombust.workoutoclock.exceptions.ObjectNotFoundException;
 import com.spontancombust.workoutoclock.model.WorkoutSet;
+import com.spontancombust.workoutoclock.repositories.UserRepository;
 import com.spontancombust.workoutoclock.repositories.WorkoutSetRepository;
 import com.spontancombust.workoutoclock.repositories.WorkoutTaskRepository;
 
@@ -32,6 +33,8 @@ public interface WorkoutSetService {
     WorkoutSet getWorkoutSetById(Long id) throws ObjectNotFoundException;
 
     WorkoutSet getWorkoutSetByIdCheckUser(Long id, Long userId) throws ObjectNotFoundException;    
+
+    WorkoutSet getWorkoutSetRefById(Long id);
 }
 
 
@@ -43,6 +46,7 @@ class WorkoutSetServiceImpl implements WorkoutSetService {
     
     private final WorkoutSetRepository setRepository;
     private final WorkoutTaskRepository taskRepository;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -53,8 +57,7 @@ class WorkoutSetServiceImpl implements WorkoutSetService {
     ) throws ObjectAlreadyExistsException {
         var newSet = new WorkoutSet(
             null,
-            userId,
-            null,
+            this.userRepository.getReferenceById(userId),
             title,
             cardColorHex
         );
@@ -64,7 +67,7 @@ class WorkoutSetServiceImpl implements WorkoutSetService {
 
     @Override
     public WorkoutSet updateWorkoutSet(WorkoutSet updatedSet) throws ObjectNotFoundException {
-        if (!setRepository.existsByIdAndUserId(updatedSet.getId(), updatedSet.getUserId())) {
+        if (!setRepository.existsByIdAndUserId(updatedSet.getId(), updatedSet.getUser().getId())) {
             throw new ObjectNotFoundException("WorkoutSet");
         }
 
@@ -107,9 +110,14 @@ class WorkoutSetServiceImpl implements WorkoutSetService {
     public WorkoutSet getWorkoutSetById(Long id) throws ObjectNotFoundException {
         return setRepository.findById(id).orElseThrow(() -> new ObjectNotFoundException("WorkoutSet"));
     }
-
+    
     @Override
     public WorkoutSet getWorkoutSetByIdCheckUser(Long id, Long userId) throws ObjectNotFoundException {
         return setRepository.findByIdAndUserId(id, userId).orElseThrow(() -> new ObjectNotFoundException("WorkoutSet"));
+    }
+
+    @Override
+    public WorkoutSet getWorkoutSetRefById(Long id) {
+        return setRepository.getReferenceById(id);
     }
 }

@@ -13,6 +13,6 @@ public interface WorkoutTaskRepository extends JpaRepository<WorkoutTask, Long> 
     List<WorkoutTask> findAllBySetIdOrderByIndex(Long id);
     void deleteAllBySetId(Long id);
 
-    @Query("SELECT MAX(t.index) FROM WorkoutTask t WHERE t.setId = ?1")
+    @Query("SELECT MAX(t.index) FROM WorkoutTask t WHERE t.set.id = ?1")
     Integer findMaxIndexBySetId(Long id);
 }

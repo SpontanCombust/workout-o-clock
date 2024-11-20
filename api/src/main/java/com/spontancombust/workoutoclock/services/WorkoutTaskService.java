@@ -47,9 +47,11 @@ public interface WorkoutTaskService {
 
     List<WorkoutTask> getAllWorkoutTasksBySetIdCheckUser(Long setId, Long userId, boolean orderByIndex);
 
-    WorkoutTask getWorkoutTaskById(Long id);
+    WorkoutTask getWorkoutTaskById(Long id) throws ObjectNotFoundException;
 
     WorkoutTask getWorkoutTaskByIdCheckUser(Long id, Long userId);
+
+    WorkoutTask getWorkoutTaskRefById(Long id);
 }
 
 
@@ -78,8 +80,7 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
 
         WorkoutTask newTask = new WorkoutTask(
             null, 
-            setId, 
-            null,
+            this.setRepository.getReferenceById(setId),
             newIndex, 
             title, 
             objectiveType, 
@@ -119,7 +120,7 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
 
         // if an index of the task was changed the entire set has to account for that
         if (updatedTask.getIndex() != currentTaskIndex) {
-            var allTasksSorted = this.getAllWorkoutTasksBySetId(updatedTask.getSetId(), true);
+            var allTasksSorted = this.getAllWorkoutTasksBySetId(updatedTask.getSet().getId(), true);
 
             if (updatedTask.getIndex() < 0 || updatedTask.getIndex() >= allTasksSorted.size()) {
                 throw new InvalidWorkoutTaskIndexException(updatedTask.getIndex());
@@ -148,7 +149,7 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
 
     @Override
     public WorkoutTask updateWorkoutTaskCheckUser(WorkoutTask updatedTask, Long userId) throws ObjectNotFoundException, InvalidWorkoutTaskIndexException {
-        if (!setRepository.existsByIdAndUserId(updatedTask.getSetId(), userId)) {
+        if (!setRepository.existsByIdAndUserId(updatedTask.getSet().getId(), userId)) {
             throw new ObjectNotFoundException("WorkoutSet");
         }
 
@@ -179,7 +180,7 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
     @Override
     public Boolean deleteWorkoutTaskByIdCheckUser(Long id, Long userId) {
         var task = taskRepository.findById(id);
-        if (task.map(t -> t.getSet().getUserId().equals(userId)).orElse(false)) {
+        if (task.map(t -> t.getSet().getId().equals(userId)).orElse(false)) {
             return this.deleteWorkoutTaskById(id);
         } else {
             return false;
@@ -213,7 +214,12 @@ class WorkoutTaskServiceImpl implements WorkoutTaskService {
     @Override
     public WorkoutTask getWorkoutTaskByIdCheckUser(Long id, Long userId) {
         return taskRepository.findById(id)
-                    .filter(t -> t.getSet().getUserId().equals(userId))
+                    .filter(t -> t.getSet().getId().equals(userId))
                     .orElseThrow(() -> new ObjectNotFoundException("WorkoutTask"));
+    }
+
+    @Override
+    public WorkoutTask getWorkoutTaskRefById(Long id) {
+        return taskRepository.getReferenceById(id);
     }
 }

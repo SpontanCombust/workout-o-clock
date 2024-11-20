@@ -21,16 +21,18 @@ import com.spontancombust.workoutoclock.dto.WorkoutSetControllerDtos.CreateWorko
 import com.spontancombust.workoutoclock.dto.common.WorkoutSetDto;
 import com.spontancombust.workoutoclock.model.WorkoutSet;
 import com.spontancombust.workoutoclock.security.UserPrincipal;
+import com.spontancombust.workoutoclock.services.UserService;
 import com.spontancombust.workoutoclock.services.WorkoutSetService;
 
 
 
 @RestController
-@RequestMapping("/workoutSets")
+@RequestMapping("/workoutSets") //FIXME use kebab-case instea of camelCase
 @RequiredArgsConstructor
 public class WorkoutSetController {
     
-    private final WorkoutSetService workoutService;
+    private final WorkoutSetService setService;
+    private final UserService userService;
 
 
     @PostMapping("/")
@@ -38,7 +40,7 @@ public class WorkoutSetController {
         @AuthenticationPrincipal UserPrincipal principal, 
         @Valid @RequestBody CreateWorkoutSetRequestDto newSetDetailsDto
     ) {   
-        var newSetModel = workoutService.createWorkoutSet(
+        var newSetModel = setService.createWorkoutSet(
             principal.getUserId(),
             newSetDetailsDto.getTitle(),
             newSetDetailsDto.getCardColorHex()
@@ -55,13 +57,12 @@ public class WorkoutSetController {
     ) {
         var updatedSetModel = new WorkoutSet(
             id,
-            principal.getUserId(),
-            null,
+            this.userService.getRefById(principal.getUserId()),
             updatedSetDetailsDto.getTitle(),
             updatedSetDetailsDto.getCardColorHex()
         );
         
-        updatedSetModel = workoutService.updateWorkoutSet(updatedSetModel);
+        updatedSetModel = setService.updateWorkoutSet(updatedSetModel);
         var updatedSetDto = Converters.workoutSetDto.fromModel(updatedSetModel);
         return ResponseEntity.ok(updatedSetDto);
     }
@@ -71,7 +72,7 @@ public class WorkoutSetController {
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long id
     ) {
-        var deleted = workoutService.deleteWorkoutSetByIdCheckUser(id, principal.getUserId());
+        var deleted = setService.deleteWorkoutSetByIdCheckUser(id, principal.getUserId());
         return ResponseEntity.ok(deleted);
     }
 
@@ -79,7 +80,7 @@ public class WorkoutSetController {
     public ResponseEntity<List<WorkoutSetDto>> getAllWorkoutSets(
         @AuthenticationPrincipal UserPrincipal principal
     ) {
-        var allWorkoutSetsDtos = workoutService.getAllWorkoutSetsForUser(principal.getUserId()).stream()
+        var allWorkoutSetsDtos = setService.getAllWorkoutSetsForUser(principal.getUserId()).stream()
                                     .map(m -> Converters.workoutSetDto.fromModel(m))
                                     .collect(Collectors.toList());
 
@@ -91,7 +92,7 @@ public class WorkoutSetController {
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long id
     ) {
-        var workoutSetModel = workoutService.getWorkoutSetByIdCheckUser(id, principal.getUserId());
+        var workoutSetModel = setService.getWorkoutSetByIdCheckUser(id, principal.getUserId());
         var workoutSetDto = Converters.workoutSetDto.fromModel(workoutSetModel);
         return ResponseEntity.ok(workoutSetDto);
     }
