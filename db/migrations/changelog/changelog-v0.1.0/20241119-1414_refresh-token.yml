@@ -1,0 +1,46 @@
+databaseChangeLog:
+- changeSet:
+    id: 20241119-1414_refresh-token
+    author: spontan
+    changes:
+    - createTable:
+        schemaName: woc
+        tableName: refresh_token
+        columns:
+          - column:
+              name: token_id
+              type: BIGINT
+              constraints:
+                nullable: false
+                primaryKey: true
+                unique: true
+          - column:
+              name: user_id
+              type: BIGINT
+              constraints:
+                nullable: false
+                foreignKeyName: user_id
+          - column:
+              name: issued_date
+              type: DATETIME
+              constraints:
+                nullable: false
+          - column:
+              name: expired_date
+              type: DATETIME
+              constraints:
+                nullable: false
+          - column:
+              name: token_string
+              type: TEXT
+              constraints:
+                nullable: false
+                unique: true
+          - column:
+              name: valid
+              type: BOOLEAN
+              defaultValueBoolean: true
+    - createSequence:
+        schemaName: woc
+        sequenceName: refresh_token_seq
+        startValue: 1

@@ -35,12 +35,21 @@ table(workout_task) {
     column(objective_time_secs): INT
     column(card_color_hex): VARCHAR(8)
 }
-
 note right: objective_type as "R" for reps or "T" for time in seconds
+
+table(refresh_token) {
+    primary_key(token_id): BIGINT
+    --
+    foreign_key(user_id): BIGINT NOT NULL
+    column(issued_date): DATETIME NOT NULL
+    column(expired_date): DATETIME
+    column(token_string): TEXT UNIQUE
+    column(valid): BOOLEAN DEFAULT TRUE
+}
 
 
 workout_set }o-up-|| user
 workout_task }o-up-|| workout_set
-
+refresh_token }o-left-|| user
 
 @enduml
