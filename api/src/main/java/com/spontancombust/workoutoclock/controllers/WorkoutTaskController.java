@@ -31,7 +31,7 @@ import com.spontancombust.workoutoclock.services.WorkoutTaskService;
 
 
 @RestController
-@RequestMapping("/workoutSets/{setId}/tasks") //FIXME use kebab-case instea of camelCase
+@RequestMapping("/workout-sets/{setId}/tasks")
 @RequiredArgsConstructor
 public class WorkoutTaskController {
     
