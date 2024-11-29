@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 
 import com.spontancombust.workoutoclock.converters.Converters;
 import com.spontancombust.workoutoclock.dto.WorkoutSetControllerDtos.CreateWorkoutSetRequestDto;
+import com.spontancombust.workoutoclock.dto.WorkoutSetControllerDtos.UpdateWorkoutSetRequestDto;
 import com.spontancombust.workoutoclock.dto.common.WorkoutSetDto;
 import com.spontancombust.workoutoclock.model.WorkoutSet;
 import com.spontancombust.workoutoclock.security.UserPrincipal;
@@ -53,7 +54,7 @@ public class WorkoutSetController {
     public ResponseEntity<WorkoutSetDto> updateWorkoutSet(
         @AuthenticationPrincipal UserPrincipal principal,
         @PathVariable Long id, 
-        @Valid @RequestBody CreateWorkoutSetRequestDto updatedSetDetailsDto
+        @Valid @RequestBody UpdateWorkoutSetRequestDto updatedSetDetailsDto
     ) {
         var updatedSetModel = new WorkoutSet(
             id,

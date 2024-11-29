@@ -20,4 +20,17 @@ public class WorkoutSetControllerDtos {
         @ValidColorHex
         private String cardColorHex;
     }
+
+
+    @Data
+    @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class UpdateWorkoutSetRequestDto {
+
+        private String title;
+
+        @ValidColorHex
+        private String cardColorHex;
+    }
 }
