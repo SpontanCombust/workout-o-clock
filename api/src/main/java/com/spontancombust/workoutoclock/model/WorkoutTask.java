@@ -16,6 +16,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import com.spontancombust.workoutoclock.validators.ValidColorHex;
+
 
 @Data
 @Builder
@@ -51,5 +53,6 @@ public class WorkoutTask {
     private Integer objectiveTimeSecs;
 
     @Column(name = "card_color_hex", length = 8)
+    @ValidColorHex
     private String cardColorHex;
 }

@@ -1,5 +1,7 @@
 package com.spontancombust.workoutoclock.model;
 
+import com.spontancombust.workoutoclock.validators.ValidColorHex;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -39,5 +41,6 @@ public class WorkoutSet {
     private String title;
 
     @Column(name = "card_color_hex", length = 8)
+    @ValidColorHex
     private String cardColorHex;
 }

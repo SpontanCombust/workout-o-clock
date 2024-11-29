@@ -29,7 +29,9 @@ public @interface ValidColorHex {
     
         @Override
         public boolean isValid(String value, ConstraintValidatorContext context) {
-            if (value == null || value.isEmpty()) {
+            if (value == null) {
+                return true;
+            } else if (value.isEmpty()) {
                 return false;
             }
     
