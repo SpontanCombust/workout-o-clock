@@ -1,5 +1,4 @@
-import { WorkoutTaskObjectiveDto } from "./CommonDtos";
-
+import { WorkoutTaskObjectiveDto } from "./common/WorkoutTaskObjectiveDto"
 
 export interface CreateWorkoutTaskRequestDto {
     title?: string,

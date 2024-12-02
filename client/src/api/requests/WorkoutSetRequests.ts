@@ -1,7 +1,7 @@
 import { ApiRequests, ResponseEntity } from "./ApiRequests";
 import { SignInResponseDto } from "../dto/AuthDtos";
-import { WorkoutSetDto } from "../dto/CommonDtos";
 import { CreateWorkoutSetRequestDto, UpdateWorkoutSetRequestDto } from "../dto/WorkoutSetDtos";
+import { WorkoutSetDto } from "../dto/common/WorkoutSetDto";
 
 
 export default class WorkoutSetRequests extends ApiRequests {
