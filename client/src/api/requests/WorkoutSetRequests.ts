@@ -1,6 +1,6 @@
 import { ApiRequests } from "./ApiRequests";
 import { CreateWorkoutSetRequestDto, UpdateWorkoutSetRequestDto } from "../dto/WorkoutSetDtos";
-import { WorkoutSetDto } from "../dto/common/WorkoutSetDto";
+import WorkoutSetDto from "../dto/common/WorkoutSetDto";
 
 
 export default class WorkoutSetRequests extends ApiRequests {

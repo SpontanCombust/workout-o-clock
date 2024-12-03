@@ -1,6 +1,6 @@
 import { ApiRequests } from "./ApiRequests";
 import { ChangePasswordRequestDto, RefreshRequestDto, RefreshResponseDto, SignInRequestDto, SignInResponseDto, SignOutRequestDto, SignUpRequestDto } from "../dto/AuthDtos";
-import { UserDto } from "../dto/common/UserDto";
+import UserDto from "../dto/common/UserDto";
 
 
 export default class AuthRequests extends ApiRequests {

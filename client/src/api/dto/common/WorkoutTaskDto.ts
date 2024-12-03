@@ -1,6 +1,6 @@
 import { WorkoutTaskObjectiveDto } from "./WorkoutTaskObjectiveDto";
 
-export interface WorkoutTaskDto {
+export default interface WorkoutTaskDto {
     id: number,
     setId: number,
     index?: number,

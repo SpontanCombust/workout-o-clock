@@ -3,7 +3,7 @@ import WorkoutSetRequests from "./WorkoutSetRequests";
 import WorkoutTaskRequests from "./WorkoutTaskRequests";
 
 
-export const Api = {
+const Api = {
     auth() : AuthRequests {
         return new AuthRequests();
     },
@@ -16,3 +16,5 @@ export const Api = {
         return new WorkoutTaskRequests(setId);
     },
 };
+
+export default Api;
