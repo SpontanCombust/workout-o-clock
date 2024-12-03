@@ -1,4 +1,4 @@
-import { ApiRequests, ResponseEntity } from "./ApiRequests";
+import { ApiRequests } from "./ApiRequests";
 import { CreateWorkoutTaskRequestDto, UpdateWorkoutTaskRequestDto } from "../dto/WorkoutTaskDtos";
 import { WorkoutTaskDto } from "../dto/common/WorkoutTaskDto";
 
@@ -17,23 +17,23 @@ export default class WorkoutTaskRequests extends ApiRequests {
     }
 
 
-    async createWorkoutTask(req: CreateWorkoutTaskRequestDto) : Promise<ResponseEntity<WorkoutTaskDto>> {
+    async createWorkoutTask(req: CreateWorkoutTaskRequestDto) : Promise<WorkoutTaskDto> {
         return await this.doRequest('POST', `/`, req, true);
     }
 
-    async updateWorkoutTask(id: number, req: UpdateWorkoutTaskRequestDto) : Promise<ResponseEntity<WorkoutTaskDto>> {
+    async updateWorkoutTask(id: number, req: UpdateWorkoutTaskRequestDto) : Promise<WorkoutTaskDto> {
         return await this.doRequest('PUT', `/${id}`, req, true);
     }
 
-    async deleteWorkoutTask(id: number) : Promise<ResponseEntity<boolean>> {
+    async deleteWorkoutTask(id: number) : Promise<boolean> {
         return await this.doRequest('DELETE', `/${id}`, undefined, true);
     }
 
-    async getAllWorkoutTasks() : Promise<ResponseEntity<Array<WorkoutTaskDto>>> {
+    async getAllWorkoutTasks() : Promise<Array<WorkoutTaskDto>> {
         return await this.doRequest('GET', `/`, undefined, true);
     }
 
-    async getWorkoutTaskById(id: number) : Promise<ResponseEntity<WorkoutTaskDto>> {
+    async getWorkoutTaskById(id: number) : Promise<WorkoutTaskDto> {
         return await this.doRequest('GET', `/${id}`, undefined, true);
     }
 }
