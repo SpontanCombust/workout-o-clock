@@ -1,14 +1,15 @@
-import { StorageObject } from "../storage/AsyncStorageSQL";
-
-export class WorkoutSet extends StorageObject {
+export default class WorkoutSet {
+    id: number;
     title: string;
-    cardColor: string;
-    taskIds: string[]; 
+    cardColorHex: string;
 
-    constructor(title: string, cardColor: string) {
-        super();
+    constructor(
+        id: number,
+        title: string,
+        cardColorHex: string
+    ) {
+        this.id = id;
         this.title = title;
-        this.cardColor = cardColor;
-        this.taskIds = [];
+        this.cardColorHex = cardColorHex;
     }
 }

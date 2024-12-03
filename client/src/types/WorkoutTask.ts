@@ -1,34 +1,26 @@
-import { StorageObject } from "../storage/AsyncStorageSQL";
+import { WorkoutTaskObjective } from "./WorkoutTaskObjective";
 
-export enum CompletionConditionType {
-    TIME,
-    REPS,
-}
-
-export interface CompletionConditionTime {
-    type: CompletionConditionType.TIME;
-    minutes: number;
-    seconds: number;
-}
-
-export interface CompletionConditionReps {
-    type: CompletionConditionType.REPS;
-    reps: number;
-}
-
-export type CompletionCondition = CompletionConditionTime | CompletionConditionReps;
-
-export class WorkoutTask extends StorageObject {
-    setId: string;
+export default class WorkoutTask{
+    id: number;
+    setId: number;
+    index: number;
     title: string;
-    completionCondition: CompletionCondition;
-    cardColor: string;
+    objective: WorkoutTaskObjective;
+    cardColorHex: string;
 
-    constructor(setId: string, title: string, completionCondition: CompletionCondition, cardColor: string) {
-        super();
+    constructor(
+        id: number,
+        setId: number,
+        index: number,
+        title: string,
+        objective: WorkoutTaskObjective,
+        cardColorHex: string
+    ) {
+        this.id = id;
         this.setId = setId;
+        this.index = index;
         this.title = title;
-        this.completionCondition = completionCondition;
-        this.cardColor = cardColor;
+        this.objective = objective;
+        this.cardColorHex = cardColorHex;
     }
 }
